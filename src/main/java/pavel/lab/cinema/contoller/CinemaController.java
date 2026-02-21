@@ -2,6 +2,7 @@ package pavel.lab.cinema.contoller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,10 +18,14 @@ public class CinemaController {
     private final CinemaService cinemaService;
 
     @GetMapping("/{id}")
-    public MovieDto findMovieById(
-            @PathVariable final Long id
+    public ResponseEntity<MovieDto> findMovieById(
+            @PathVariable Long id
     ) {
-        return cinemaService.findMovieById(id);
+        if (cinemaService.findMovieById(id) == null) {
+            return ResponseEntity.status(404)
+                    .build();
+        }
+        return ResponseEntity.ok(cinemaService.findMovieById(id));
     }
 
     @GetMapping("/filter")

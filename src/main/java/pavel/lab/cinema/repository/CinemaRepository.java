@@ -23,6 +23,9 @@ public class CinemaRepository {
     public Movie findMovieById(
             Long id
     ) {
+        if (!movies.containsKey(id)) {
+            return null;
+        }
         return movies.get(id);
     }
 

@@ -34,6 +34,9 @@ public class CinemaService {
     }
 
     public MovieDto findMovieById(Long id) {
+        if (cinemaRepository.findMovieById(id) == null) {
+            return null;
+        }
         return movieMapper.movieToDto(cinemaRepository.findMovieById(id));
     }
 }
