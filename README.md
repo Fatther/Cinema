@@ -1,4 +1,4 @@
-Аникевич Павел Петрович
+Аникевич Павел Петрович (гр. 450501)
 
 Лабораторная работа №1 "Basic REST service"
 
@@ -14,4 +14,4 @@
 6. Настроить Checkstyle и привести код к стилю.
 ```
 Ссылка на SonarCloud:
-https://sonarcloud.io/api/project_badges/measure?project=Fatther_Cinema&metric=code_smells
+https://sonarcloud.io/summary/overall?id=Fatther_Cinema&branch=main
