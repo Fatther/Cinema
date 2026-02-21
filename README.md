@@ -14,4 +14,4 @@
 6. Настроить Checkstyle и привести код к стилю.
 ```
 Ссылка на SonarCloud:
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Fatther_Cinema&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Fatther_Cinema)
+https://sonarcloud.io/api/project_badges/measure?project=Fatther_Cinema&metric=code_smells
