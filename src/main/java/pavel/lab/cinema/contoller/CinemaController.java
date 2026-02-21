@@ -3,7 +3,6 @@ package pavel.lab.cinema.contoller;
 
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import pavel.lab.cinema.dto.MovieDto;
 import pavel.lab.cinema.sevice.CinemaService;
 
