@@ -1,12 +1,11 @@
 package pavel.lab.cinema.repository;
 
-import org.springframework.stereotype.Repository;
-import pavel.lab.cinema.entities.Movie;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Repository;
+import pavel.lab.cinema.entities.Movie;
 
 @Repository
 public class CinemaRepository {
@@ -16,12 +15,12 @@ public class CinemaRepository {
         movies = new HashMap<>();
         movies.put(1L, new Movie(1L, "Avatar", 200, "12+", "Sci-Fi"));
         movies.put(2L, new Movie(2L, "Inception", 150, "12+", "Thriller"));
-        movies.put(3L, new Movie(3L, "Terminator",100, "16+", "Action"));
+        movies.put(3L, new Movie(3L, "Terminator", 100, "16+", "Action"));
         movies.put(4L, new Movie(4L, "Transporter", 90, "16+", "Action"));
         movies.put(5L, new Movie(5L, "Cars", 110, "0+", "Animated"));
     }
 
-    public Movie findMovieByID(
+    public Movie findMovieById(
             Long id
     ) {
         return movies.get(id);

@@ -6,7 +6,7 @@ import pavel.lab.cinema.entities.Movie;
 
 @Component
 public class MovieMapper {
-    public MovieDto movieToDto(Movie movie) {
+    public MovieDto movieToDto(final Movie movie) {
         MovieDto movieDto = new MovieDto();
         movieDto.setId(movie.getId());
         movieDto.setTitle(movie.getTitle());

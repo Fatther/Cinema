@@ -1,29 +1,31 @@
 package pavel.lab.cinema.contoller;
 
-
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.MovieDto;
 import pavel.lab.cinema.sevice.CinemaService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies")
 public class CinemaController {
-    public final CinemaService cinemaService;
+    private final CinemaService cinemaService;
 
     @GetMapping("/{id}")
-    public MovieDto findMovieByID(
-            @PathVariable Long id
+    public MovieDto findMovieById(
+            @PathVariable final Long id
     ) {
-        return cinemaService.findMovieByID(id);
+        return cinemaService.findMovieById(id);
     }
 
     @GetMapping("/filter")
     public List<MovieDto> findMoviesByDuration(
-            @RequestParam(defaultValue = "120") Integer maxDuration
+            @RequestParam(defaultValue = "120") final Integer maxDuration
     ) {
         return cinemaService.findMoviesByDuration(maxDuration);
     }
@@ -31,8 +33,8 @@ public class CinemaController {
     @GetMapping()
     public List<MovieDto> findAllMovies() {
         return cinemaService.findAllMovies();
-        }
     }
+}
 
 
 
