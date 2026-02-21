@@ -13,4 +13,5 @@
 5. Реализовать DTO и mapper между Entity и API-ответом.
 6. Настроить Checkstyle и привести код к стилю.
 ```
-Ссылка на SonarCloud: 
+Ссылка на SonarCloud:
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Fatther_Cinema&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Fatther_Cinema)
