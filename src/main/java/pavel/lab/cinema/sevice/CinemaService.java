@@ -40,8 +40,6 @@ public class CinemaService {
     public MovieDto findMovieByID(
             Long id
     ) {
-        if (cinemaRepository.findMovieByID(id) == null)
-            throw new NoSuchElementException("Not found movie by ID");
         return  movieMapper.movieToDto(cinemaRepository.findMovieByID(id));
     }
 }

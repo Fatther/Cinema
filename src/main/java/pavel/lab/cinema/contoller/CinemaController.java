@@ -16,17 +16,11 @@ public class CinemaController {
     public final CinemaService cinemaService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieDto> findMovieByID(
+    public MovieDto findMovieByID(
             @PathVariable Long id
     ) {
-        try {
-        return ResponseEntity.ok(cinemaService.findMovieByID(id));
-        }
-        catch (Exception _) {
-            return ResponseEntity.status(404)
-                    .build();
-            }
-        }
+        return cinemaService.findMovieByID(id);
+    }
 
     @GetMapping("/filter")
     public List<MovieDto> findMoviesByDuration(
