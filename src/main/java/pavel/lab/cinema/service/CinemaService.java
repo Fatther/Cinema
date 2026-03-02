@@ -1,4 +1,4 @@
-package pavel.lab.cinema.sevice;
+package pavel.lab.cinema.service;
 
 import java.util.ArrayList;
 import java.util.List;

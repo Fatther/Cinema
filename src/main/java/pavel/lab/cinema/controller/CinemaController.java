@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.MovieDto;
-import pavel.lab.cinema.sevice.CinemaService;
+import pavel.lab.cinema.service.CinemaService;
 
 @RestController
 @RequiredArgsConstructor
