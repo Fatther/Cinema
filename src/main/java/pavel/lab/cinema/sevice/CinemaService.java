@@ -12,8 +12,9 @@ import pavel.lab.cinema.repository.CinemaRepository;
 @Service
 @RequiredArgsConstructor
 public class CinemaService {
-    public final CinemaRepository cinemaRepository;
-    public final MovieMapper movieMapper;
+
+    private final CinemaRepository cinemaRepository;
+    private final MovieMapper movieMapper;
 
     public List<MovieDto> findAllMovies() {
         List<MovieDto> movieDtoList = new ArrayList<>();

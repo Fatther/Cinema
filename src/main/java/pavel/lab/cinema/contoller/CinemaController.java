@@ -15,6 +15,7 @@ import pavel.lab.cinema.sevice.CinemaService;
 @RequiredArgsConstructor
 @RequestMapping("/movies")
 public class CinemaController {
+
     private final CinemaService cinemaService;
 
     @GetMapping("/{id}")
