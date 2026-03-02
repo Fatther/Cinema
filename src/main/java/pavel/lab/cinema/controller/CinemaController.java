@@ -1,4 +1,4 @@
-package pavel.lab.cinema.contoller;
+package pavel.lab.cinema.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
