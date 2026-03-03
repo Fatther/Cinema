@@ -8,10 +8,10 @@ import org.springframework.stereotype.Repository;
 import pavel.lab.cinema.entities.Movie;
 
 @Repository
-public class CinemaRepository {
+public class MovieRepository {
     private final Map<Long, Movie> movies;
 
-    public CinemaRepository() {
+    public MovieRepository() {
         movies = new HashMap<>();
         movies.put(1L, new Movie(1L, "Avatar", 200, "12+", "Sci-Fi"));
         movies.put(2L, new Movie(2L, "Inception", 150, "12+", "Thriller"));

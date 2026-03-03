@@ -11,14 +11,14 @@ import pavel.lab.cinema.repository.MovieRepository;
 
 @Service
 @RequiredArgsConstructor
-public class CinemaService {
+public class MovieService {
 
-    private final MovieRepository cinemaRepository;
+    private final MovieRepository movieRepository;
     private final MovieMapper movieMapper;
 
     public List<MovieDto> findAllMovies() {
         List<MovieDto> movieDtoList = new ArrayList<>();
-        for (Movie movie : cinemaRepository.findAllMovies()) {
+        for (Movie movie : movieRepository.findAllMovies()) {
             movieDtoList.add(movieMapper.movieToDto(movie));
         }
         return movieDtoList;
@@ -35,9 +35,9 @@ public class CinemaService {
     }
 
     public MovieDto findMovieById(Long id) {
-        if (cinemaRepository.findMovieById(id) == null) {
+        if (movieRepository.findMovieById(id) == null) {
             return null;
         }
-        return movieMapper.movieToDto(cinemaRepository.findMovieById(id));
+        return movieMapper.movieToDto(movieRepository.findMovieById(id));
     }
 }

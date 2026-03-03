@@ -9,36 +9,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.MovieDto;
-import pavel.lab.cinema.service.CinemaService;
+import pavel.lab.cinema.service.MovieService;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/movies")
-public class CinemaController {
+public class MovieController {
 
-    private final CinemaService cinemaService;
+    private final MovieService movieService;
 
     @GetMapping("/{id}")
     public ResponseEntity<MovieDto> findMovieById(
             @PathVariable Long id
     ) {
-        if (cinemaService.findMovieById(id) == null) {
+        if (movieService.findMovieById(id) == null) {
             return ResponseEntity.status(404)
                     .build();
         }
-        return ResponseEntity.ok(cinemaService.findMovieById(id));
+        return ResponseEntity.ok(movieService.findMovieById(id));
     }
 
     @GetMapping("/filter")
     public List<MovieDto> findMoviesByDuration(
             @RequestParam(defaultValue = "120") final Integer maxDuration
     ) {
-        return cinemaService.findMoviesByDuration(maxDuration);
+        return movieService.findMoviesByDuration(maxDuration);
     }
 
     @GetMapping()
     public List<MovieDto> findAllMovies() {
-        return cinemaService.findAllMovies();
+        return movieService.findAllMovies();
     }
 }
 
