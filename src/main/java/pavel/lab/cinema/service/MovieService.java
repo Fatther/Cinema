@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import pavel.lab.cinema.dto.MovieDto;
 import pavel.lab.cinema.entities.Movie;
 import pavel.lab.cinema.mapper.MovieMapper;
-import pavel.lab.cinema.repository.CinemaRepository;
+import pavel.lab.cinema.repository.MovieRepository;
 
 @Service
 @RequiredArgsConstructor
 public class CinemaService {
 
-    private final CinemaRepository cinemaRepository;
+    private final MovieRepository cinemaRepository;
     private final MovieMapper movieMapper;
 
     public List<MovieDto> findAllMovies() {
