@@ -10,7 +10,9 @@ import pavel.lab.cinema.entity.Movie;
 public class MovieMapper {
 
     public MovieDTO toDto(Movie entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
 
         return MovieDTO.builder()
                 .id(entity.getId())
@@ -24,7 +26,9 @@ public class MovieMapper {
     }
 
     public Movie toEntity(MovieRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         return Movie.builder()
                 .title(dto.getTitle())
                 .duration(dto.getDuration())

@@ -8,7 +8,9 @@ import pavel.lab.cinema.entity.Visitor;
 @Component
 public class VisitorMapper {
     public VisitorDTO toDto(Visitor entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return VisitorDTO.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -17,7 +19,9 @@ public class VisitorMapper {
     }
 
     public Visitor toEntity(VisitorRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         return Visitor.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())

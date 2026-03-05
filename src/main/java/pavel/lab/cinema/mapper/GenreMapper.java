@@ -9,7 +9,9 @@ import pavel.lab.cinema.entity.Genre;
 public class GenreMapper {
 
     public GenreDTO toDto(Genre entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
 
         return GenreDTO.builder()
                 .id(entity.getId())
@@ -18,7 +20,9 @@ public class GenreMapper {
     }
 
     public Genre toEntity(GenreRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         return Genre.builder()
                 .name(dto.getName())
                 .build();

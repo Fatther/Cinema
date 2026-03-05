@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 import pavel.lab.cinema.dto.defaultdto.TicketDTO;
 import pavel.lab.cinema.dto.requestdto.TicketRequestDTO;
 import pavel.lab.cinema.entity.Session;
@@ -26,14 +25,19 @@ public class TicketService {
     private final SessionRepository sessionRepository;
     private final VisitorRepository visitorRepository;
 
+    private static final String NOT_FOUND_MSG = " not found";
+    private static final String TICKET_PREFIX = "Ticket with ID ";
+    private static final String SESSION_PREFIX = "Session with ID ";
+    private static final String VISITOR_PREFIX = "Visitor with ID ";
+
     @Transactional
     public TicketDTO create(TicketRequestDTO dto) {
         Ticket ticket = ticketMapper.toEntity(dto);
         Session session = sessionRepository.findById(dto.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("Session with id " + dto.getSessionId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
         ticket.setSession(session);
         Visitor visitor = visitorRepository.findById(dto.getVisitorId())
-                .orElseThrow(() -> new EntityNotFoundException("Visitor with id " + dto.getVisitorId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));
         ticket.setVisitor(visitor);
         Ticket savedTicket = ticketRepository.save(ticket);
         return ticketMapper.toDto(savedTicket);
@@ -50,27 +54,27 @@ public class TicketService {
     @Transactional
     public TicketDTO findLazyById(Long id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket with id " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(TICKET_PREFIX + id + NOT_FOUND_MSG));
         return ticketMapper.toDto(ticket);
     }
 
     @Transactional
     public TicketDTO findGoodById(Long id) {
         Ticket ticket = ticketRepository.findGoodById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket with id " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(TICKET_PREFIX + id + NOT_FOUND_MSG));
         return ticketMapper.toDto(ticket);
     }
 
     @Transactional
     public TicketDTO update(Long id, TicketRequestDTO dto) {
         Ticket ticket = ticketRepository.findGoodById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Ticket with id " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(TICKET_PREFIX + id + NOT_FOUND_MSG));
         ticket.setSeatNumber(dto.getSeatNumber());
         Session session = sessionRepository.findById(dto.getSessionId())
-                .orElseThrow(() -> new EntityNotFoundException("Session with id " + dto.getSessionId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
         ticket.setSession(session);
         Visitor visitor = visitorRepository.findById(dto.getVisitorId())
-                .orElseThrow(() -> new EntityNotFoundException("Visitor with id " + dto.getVisitorId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));
         ticket.setVisitor(visitor);
         Ticket updatedTicket = ticketRepository.save(ticket);
         return ticketMapper.toDto(updatedTicket);

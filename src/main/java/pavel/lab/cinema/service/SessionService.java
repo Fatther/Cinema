@@ -24,11 +24,15 @@ public class SessionService {
     private final SessionMapper sessionMapper;
     private final MovieRepository movieRepository;
 
+    private static final String NOT_FOUND_MSG = " not found";
+    private static final String MOVIE_PREFIX = "Movie with ID ";
+    private static final String SESSION_PREFIX = "Session with ID ";
+
     @Transactional
     public SessionDTO create(SessionRequestDTO dto) {
         Session session = sessionMapper.toEntity(dto);
         Movie movie = movieRepository.findById(dto.getMovieId())
-                .orElseThrow(() -> new EntityNotFoundException("Movie with ID " + dto.getMovieId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         session.setMovie(movie);
         Session createdSession = sessionRepository.save(session);
         return sessionMapper.toDto(createdSession);
@@ -43,18 +47,18 @@ public class SessionService {
     @Transactional
     public SessionDTO findById(Long id) {
         Session session = sessionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Session with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + id + NOT_FOUND_MSG));
         return sessionMapper.toDto(session);
     }
 
     @Transactional
     public SessionDTO update(Long id, SessionRequestDTO dto) {
         Session session = sessionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Session with ID " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + id + NOT_FOUND_MSG));
         session.setStartTime(dto.getStartTime());
         session.setPrice(dto.getPrice());
         Movie movie = movieRepository.findById(dto.getMovieId())
-                .orElseThrow(() -> new EntityNotFoundException("Movie with ID " + dto.getMovieId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         session.setMovie(movie);
         Session updatedSession = sessionRepository.save(session);
         return sessionMapper.toDto(updatedSession);
@@ -72,12 +76,12 @@ public class SessionService {
         for (SessionRequestDTO dto : dtos) {
             count++;
             if (count == 2) {
-                throw new RuntimeException("Some trouble");
+                throw new EntityNotFoundException("Some trouble");
             }
 
             Session session = sessionMapper.toEntity(dto);
             Movie movie = movieRepository.findById(dto.getMovieId())
-                    .orElseThrow(() -> new EntityNotFoundException("Movie ID " + dto.getMovieId() + " not found"));
+                    .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
 
             session.setMovie(movie);
             Session savedSession = sessionRepository.save(session);

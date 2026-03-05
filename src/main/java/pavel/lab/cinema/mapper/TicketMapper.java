@@ -8,7 +8,9 @@ import pavel.lab.cinema.entity.Ticket;
 @Component
 public class TicketMapper {
     public TicketDTO toDto(Ticket entity) {
-        if (entity == null) return null;
+        if (entity == null) {
+            return null;
+        }
         return TicketDTO.builder()
                 .id(entity.getId())
                 .seatNumber(entity.getSeatNumber())
@@ -19,7 +21,9 @@ public class TicketMapper {
     }
 
     public Ticket toEntity(TicketRequestDTO dto) {
-        if (dto == null) return null;
+        if (dto == null) {
+            return null;
+        }
         return Ticket.builder()
                 .seatNumber(dto.getSeatNumber())
                 .build();
