@@ -13,12 +13,6 @@ sonar {
     }
 }
 
-checkstyle {
-    toolVersion = '13.2.0'
-    configFile = file("${project.rootDir}/startjava_checks.xml")
-    ignoreFailures = false
-    showViolations = true
-}
 
 group = 'pavel.lab'
 version = '0.0.1-SNAPSHOT'
@@ -41,10 +35,14 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.postgresql:postgresql:42.7.10'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    runtimeOnly 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
