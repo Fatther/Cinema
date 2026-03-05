@@ -36,7 +36,7 @@ public class Movie {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String title;
 
     @NotNull

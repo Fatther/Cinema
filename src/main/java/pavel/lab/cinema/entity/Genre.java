@@ -29,7 +29,7 @@ public class Genre {
     private Long id;
 
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 50)
     private String name;
 
     @ManyToMany(mappedBy = "genres")
