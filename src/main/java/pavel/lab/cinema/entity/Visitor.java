@@ -32,11 +32,11 @@ public class Visitor {
     private Long id;
 
     @NotNull
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String name;
 
     @NotNull
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String email;
 
     @OneToMany(mappedBy = "visitor",

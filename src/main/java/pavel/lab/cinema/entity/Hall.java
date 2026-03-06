@@ -1,13 +1,15 @@
 package pavel.lab.cinema.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,10 +22,10 @@ import java.util.List;
 @Setter
 @Builder
 @Entity
-@Table(name = "genres")
+@Table(name = "halls")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Genre {
+public class Hall {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,6 +34,16 @@ public class Genre {
     @Column(nullable = false, unique = true, length = 20)
     private String name;
 
-    @ManyToMany(mappedBy = "genres")
-    private List<Movie> movies;
+    @NotNull
+    @Column(nullable = false)
+    private double price;
+
+    @NotNull
+    @Column(name = "seat_amount", nullable = false)
+    private Integer seatAmount;
+
+    @OneToMany(mappedBy = "hall",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true)
+    private List<Session> sessions;
 }

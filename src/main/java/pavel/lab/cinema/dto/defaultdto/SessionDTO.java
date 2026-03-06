@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class SessionDTO {
     private Long id;
     private LocalDateTime startTime;
-    private Double price;
-    private String movie;
+    private String movieTitle;
+    private String hallName;
+    private double price;
 }

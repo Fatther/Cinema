@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SessionRequestDTO {
-    private Long movieId;
     private LocalDateTime startTime;
-    private Double price;
+    private Long movieId;
+    private Long hallId;
 }

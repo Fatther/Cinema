@@ -7,15 +7,18 @@ import pavel.lab.cinema.entity.Session;
 
 @Component
 public class SessionMapper {
+
     public SessionDTO toDto(Session entity) {
         if (entity == null) {
             return null;
         }
+
         return SessionDTO.builder()
                 .id(entity.getId())
                 .startTime(entity.getStartTime())
-                .price(entity.getPrice())
-                .movie(entity.getMovie() != null ? entity.getMovie().getTitle() : null)
+                .movieTitle(entity.getMovie() != null ? entity.getMovie().getTitle() : null)
+                .hallName(entity.getHall() != null ? entity.getHall().getName() : null)
+                .price(entity.getHall() != null ? entity.getHall().getPrice() : 0.0) // Цена из зала
                 .build();
     }
 
@@ -23,9 +26,9 @@ public class SessionMapper {
         if (dto == null) {
             return null;
         }
+
         return Session.builder()
                 .startTime(dto.getStartTime())
-                .price(dto.getPrice())
                 .build();
     }
 }

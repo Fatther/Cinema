@@ -38,10 +38,6 @@ public class Session {
     private LocalDateTime startTime;
 
     @NotNull
-    @Column(nullable = false)
-    private Double price;
-
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "movie_id", nullable = false)
     private Movie movie;
@@ -51,4 +47,8 @@ public class Session {
     cascade = CascadeType.ALL,
     orphanRemoval = true)
     private List<Ticket> tickets;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hall_id")
+    private Hall hall;
 }
