@@ -3,8 +3,6 @@ package pavel.lab.cinema.dto.defaultdto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
 @Builder
 public class TicketDTO {
