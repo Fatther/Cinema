@@ -14,6 +14,7 @@ import pavel.lab.cinema.repository.SessionRepository;
 import pavel.lab.cinema.repository.TicketRepository;
 import pavel.lab.cinema.repository.VisitorRepository;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 
 @Service
@@ -32,9 +33,12 @@ public class TicketService {
 
     @Transactional
     public TicketDTO create(TicketRequestDTO dto) {
-        Ticket ticket = ticketMapper.toEntity(dto);
         Session session = sessionRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
+        if (dto.getSeatNumber() > session.getHall().getSeatAmount()) {
+            throw new InvalidParameterException("In hall " + session.getHall().getName() + " is not enough seats");
+        }
+        Ticket ticket = ticketMapper.toEntity(dto);
         ticket.setSession(session);
         Visitor visitor = visitorRepository.findById(dto.getVisitorId())
                 .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));

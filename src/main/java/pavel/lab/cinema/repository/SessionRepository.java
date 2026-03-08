@@ -11,9 +11,14 @@ import java.util.Optional;
 @NullMarked
 public interface SessionRepository extends JpaRepository<Session, Long> {
 
-    @Query("SELECT DISTINCT s FROM Session s LEFT JOIN FETCH s.movie WHERE s.id = :id")
+    @Query("SELECT DISTINCT s FROM Session s"
+            + " LEFT JOIN FETCH s.movie"
+            + " LEFT JOIN FETCH s.hall"
+            + " WHERE s.id = :id")
     Optional<Session> findById(Long id);
 
-    @Query("SELECT DISTINCT s FROM Session s LEFT JOIN FETCH s.movie")
+    @Query("SELECT DISTINCT s FROM Session s"
+            + " LEFT JOIN FETCH s.movie"
+            + " LEFT JOIN FETCH s.hall")
     List<Session> findAll();
 }

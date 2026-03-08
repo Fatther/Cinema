@@ -86,7 +86,6 @@ public class SessionService {
         int count = 0;
 
         for (SessionRequestDTO dto : dtos) {
-            count++;
             if (count == 2) {
                 throw new EntityNotFoundException("Some trouble");
             }
@@ -99,6 +98,8 @@ public class SessionService {
             Session savedSession = sessionRepository.save(session);
 
             result.add(sessionMapper.toDto(savedSession));
+
+            count++;
         }
         return result;
     }

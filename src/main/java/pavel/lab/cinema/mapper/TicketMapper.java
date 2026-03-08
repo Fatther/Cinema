@@ -1,12 +1,17 @@
 package pavel.lab.cinema.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pavel.lab.cinema.dto.defaultdto.TicketDTO;
 import pavel.lab.cinema.dto.requestdto.TicketRequestDTO;
 import pavel.lab.cinema.entity.Ticket;
 
 @Component
+@RequiredArgsConstructor
 public class TicketMapper {
+
+    private final SessionMapper sessionMapper;
+
     public TicketDTO toDto(Ticket entity) {
         if (entity == null) {
             return null;
@@ -14,8 +19,7 @@ public class TicketMapper {
         return TicketDTO.builder()
                 .id(entity.getId())
                 .seatNumber(entity.getSeatNumber())
-                .movieTitle(entity.getSession().getMovie().getTitle())
-                .startTime(entity.getSession().getStartTime())
+                .session(sessionMapper.toDto(entity.getSession()))
                 .visitorEmail(entity.getVisitor().getEmail())
                 .build();
     }

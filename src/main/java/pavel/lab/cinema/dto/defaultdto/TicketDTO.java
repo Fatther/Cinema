@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 public class TicketDTO {
     private Long id;
     private Integer seatNumber;
-    private String movieTitle;
-    private LocalDateTime startTime;
+    private SessionDTO session;
     private String visitorEmail;
 }

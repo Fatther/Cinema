@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import pavel.lab.cinema.dto.defaultdto.GenreDTO;
 import pavel.lab.cinema.dto.requestdto.GenreRequestDTO;
 import pavel.lab.cinema.entity.Genre;
-import pavel.lab.cinema.entity.Movie;
 import pavel.lab.cinema.mapper.GenreMapper;
 import pavel.lab.cinema.repository.GenreRepository;
 
@@ -50,12 +49,7 @@ public class GenreService {
     public void delete(
             Long id
     ) {
-        Genre genre = genreRepository.findById(id)
-                .orElseThrow();
-        for (Movie movie : genre.getMovies()) {
-            movie.getGenres().remove(genre);
-        }
-        genreRepository.delete(genre);
+        genreRepository.deleteById(id);
     }
 
     @Transactional

@@ -11,9 +11,9 @@ import java.util.Optional;
 @NullMarked
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
-    @EntityGraph(attributePaths = {"session", "session.movie", "visitor"})
+    @EntityGraph(attributePaths = {"session", "session.movie", "session.hall", "visitor"})
     Optional<Ticket> findGoodById(Long id);
 
-    @EntityGraph(attributePaths = {"session", "session.movie", "visitor"})
+    @EntityGraph(attributePaths = {"session", "session.movie", "session.hall", "visitor"})
     List<Ticket> findAll();
 }
