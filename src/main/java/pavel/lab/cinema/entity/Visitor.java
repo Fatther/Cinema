@@ -3,7 +3,6 @@ package pavel.lab.cinema.entity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,7 +39,6 @@ public class Visitor {
     private String email;
 
     @OneToMany(mappedBy = "visitor",
-            fetch = FetchType.LAZY,
     cascade = CascadeType.ALL,
     orphanRemoval = true)
     private List<Ticket> tickets;
