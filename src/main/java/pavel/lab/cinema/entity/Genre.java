@@ -1,6 +1,5 @@
 package pavel.lab.cinema.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +32,6 @@ public class Genre {
     @Column(nullable = false, unique = true, length = 20)
     private String name;
 
-    @ManyToMany(mappedBy = "genres",
-            cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "genres")
     private List<Movie> movies;
 }

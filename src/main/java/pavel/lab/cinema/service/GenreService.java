@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import pavel.lab.cinema.dto.defaultdto.GenreDTO;
 import pavel.lab.cinema.dto.requestdto.GenreRequestDTO;
 import pavel.lab.cinema.entity.Genre;
+import pavel.lab.cinema.entity.Movie;
 import pavel.lab.cinema.mapper.GenreMapper;
 import pavel.lab.cinema.repository.GenreRepository;
 
@@ -45,12 +46,22 @@ public class GenreService {
         return genreMapper.toDto(genre);
     }
 
-    @Transactional
-    public void delete(
-            Long id
-    ) {
-        genreRepository.deleteById(id);
-    }
+        @Transactional
+        public void delete(Long id) {
+            // 1. Ищем жанр
+            Genre genre = genreRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Жанр с id " + id + " не найден"));
+
+            List<Movie> movies = genre.getMovies();
+
+            if (!movies.isEmpty()) {
+                for (Movie movie : movies) {
+                    movie.getGenres().remove(genre);
+                }
+            }
+
+            genreRepository.delete(genre);
+        }
 
     @Transactional
     public GenreDTO update(
