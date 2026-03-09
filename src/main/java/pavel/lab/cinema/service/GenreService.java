@@ -20,6 +20,9 @@ public class GenreService {
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
 
+    private static final String NOT_FOUND_MSG = " not found";
+    private static final String GENRE_PREFIX = "Genre with ID ";
+
     @Transactional
     public GenreDTO create(
             GenreRequestDTO dto
@@ -42,7 +45,7 @@ public class GenreService {
             Long id
     ) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Жанр с id " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(GENRE_PREFIX + id + NOT_FOUND_MSG));
         return genreMapper.toDto(genre);
     }
 
@@ -50,7 +53,7 @@ public class GenreService {
         public void delete(Long id) {
             // 1. Ищем жанр
             Genre genre = genreRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Жанр с id " + id + " не найден"));
+                    .orElseThrow(() -> new EntityNotFoundException(GENRE_PREFIX + id + NOT_FOUND_MSG));
 
             List<Movie> movies = genre.getMovies();
 
@@ -69,7 +72,7 @@ public class GenreService {
             GenreRequestDTO dto
     ) {
         Genre genre = genreRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Жанр с id " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(GENRE_PREFIX + id + NOT_FOUND_MSG));
         genre.setName(dto.getName());
         Genre updatedGenre = genreRepository.save(genre);
         return genreMapper.toDto(updatedGenre);
