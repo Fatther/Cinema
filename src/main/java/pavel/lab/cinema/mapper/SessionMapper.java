@@ -18,7 +18,7 @@ public class SessionMapper {
                 .startTime(entity.getStartTime())
                 .movieTitle(entity.getMovie() != null ? entity.getMovie().getTitle() : null)
                 .hallName(entity.getHall() != null ? entity.getHall().getName() : null)
-                .price(entity.getHall() != null ? entity.getHall().getPrice() : 0.0) // Цена из зала
+                .price(entity.getHall() != null ? entity.getHall().getPrice() : 0.0)
                 .build();
     }
 
