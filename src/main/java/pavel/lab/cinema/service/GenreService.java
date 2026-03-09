@@ -51,18 +51,15 @@ public class GenreService {
 
         @Transactional
         public void delete(Long id) {
-            // 1. Ищем жанр
             Genre genre = genreRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(GENRE_PREFIX + id + NOT_FOUND_MSG));
 
             List<Movie> movies = genre.getMovies();
-
             if (!movies.isEmpty()) {
                 for (Movie movie : movies) {
                     movie.getGenres().remove(genre);
                 }
             }
-
             genreRepository.delete(genre);
         }
 
