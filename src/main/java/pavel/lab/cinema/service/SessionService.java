@@ -108,4 +108,21 @@ public class SessionService {
     public List<SessionDTO> saveMultipleWithoutError(List<SessionRequestDTO> dtos) {
         return saveMultipleWithError(dtos);
     }
+
+    @Transactional
+    public List<SessionDTO> findSessionByMovie(String title) {
+        List<Session> sessions = sessionRepository.findSessionByMovie(title);
+        return sessions.stream()
+                .map(sessionMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public List<SessionDTO> findSessionByMovieNative(String title) {
+        List<Session> sessions = sessionRepository.findSessionByMovieNative(title);
+        return sessions.stream()
+                .map(sessionMapper::toDto)
+                .toList();
+    }
+
 }

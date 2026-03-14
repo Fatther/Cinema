@@ -1,6 +1,9 @@
 package pavel.lab.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.defaultdto.MovieDTO;
+import pavel.lab.cinema.dto.defaultdto.PageResponse;
 import pavel.lab.cinema.dto.requestdto.MovieRequestDTO;
 import pavel.lab.cinema.service.MovieService;
 
@@ -34,8 +38,8 @@ public class MovieController {
     }
 
     @GetMapping
-    public List<MovieDTO> findAll() {
-        return movieService.findAll();
+    public PageResponse<MovieDTO> findAll(@PageableDefault(size = 3) Pageable pageable) {
+        return movieService.findAll(pageable);
     }
 
     @GetMapping("/{id}")

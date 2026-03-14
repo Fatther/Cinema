@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.defaultdto.SessionDTO;
 import pavel.lab.cinema.dto.requestdto.SessionRequestDTO;
@@ -55,5 +56,15 @@ public class SessionController {
     @PostMapping("/post/good")
     public List<SessionDTO> createMultipleWithoutError(@RequestBody List<SessionRequestDTO> dtos) {
         return sessionService.saveMultipleWithoutError(dtos);
+    }
+
+    @GetMapping("/search")
+    public List<SessionDTO> findSessionByMovie(@RequestParam String title) {
+        return sessionService.findSessionByMovie(title);
+    }
+
+    @GetMapping("/nativesearch")
+    public List<SessionDTO> findSessionByMovieNative(@RequestParam String title) {
+        return sessionService.findSessionByMovieNative(title);
     }
 }

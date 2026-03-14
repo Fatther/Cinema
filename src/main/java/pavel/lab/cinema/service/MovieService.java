@@ -3,9 +3,12 @@ package pavel.lab.cinema.service;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pavel.lab.cinema.dto.defaultdto.MovieDTO;
+import pavel.lab.cinema.dto.defaultdto.PageResponse;
 import pavel.lab.cinema.dto.requestdto.MovieRequestDTO;
 import pavel.lab.cinema.entity.Genre;
 import pavel.lab.cinema.entity.Movie;
@@ -38,11 +41,10 @@ public class MovieService {
     }
 
     @Transactional
-    public List<MovieDTO> findAll() {
-        List<Movie> movies = movieRepository.findAll();
-        return movies.stream()
-                .map(movieMapper::toDto)
-                .toList();
+    public PageResponse<MovieDTO> findAll(Pageable pageable) {
+        Page<Movie> moviesPage = movieRepository.findAll(pageable);
+        Page<MovieDTO> dtosPage = moviesPage.map(movieMapper::toDto);
+        return new PageResponse<>(dtosPage);
     }
 
     @Transactional

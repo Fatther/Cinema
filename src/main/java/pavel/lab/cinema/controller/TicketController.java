@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.defaultdto.TicketDTO;
 import pavel.lab.cinema.dto.requestdto.TicketRequestDTO;
@@ -50,5 +51,15 @@ public class TicketController {
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Long id) {
         ticketService.delete(id);
+    }
+
+    @GetMapping("/search")
+    public List<TicketDTO> findTicketsByVisitor(@RequestParam("visitorName") String name) {
+        return ticketService.findTicketsByVisitor(name);
+    }
+
+    @GetMapping("/jpqlsearch")
+    public List<TicketDTO> findTicketsByVisitorJPQL(@RequestParam("visitorName") String name) {
+        return ticketService.findTicketsByVisitorJPQL(name);
     }
 }

@@ -88,4 +88,20 @@ public class TicketService {
     public void delete(Long id) {
         ticketRepository.deleteById(id);
     }
+
+    @Transactional
+    public List<TicketDTO> findTicketsByVisitor(String name) {
+        List<Ticket> tickets = ticketRepository.findTicketsByVisitor(name);
+        return tickets.stream()
+                .map(ticketMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public List<TicketDTO> findTicketsByVisitorJPQL(String name) {
+        List<Ticket> tickets = ticketRepository.findTicketsByVisitorJPQL(name);
+        return tickets.stream()
+                .map(ticketMapper::toDto)
+                .toList();
+    }
 }
