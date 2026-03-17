@@ -3,9 +3,13 @@ package pavel.lab.cinema.service;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pavel.lab.cinema.cache.CacheKey;
 import pavel.lab.cinema.dto.defaultdto.SessionDTO;
+import pavel.lab.cinema.dto.page.PageResponse;
 import pavel.lab.cinema.dto.requestdto.SessionRequestDTO;
 import pavel.lab.cinema.entity.Hall;
 import pavel.lab.cinema.entity.Movie;
@@ -16,7 +20,9 @@ import pavel.lab.cinema.repository.MovieRepository;
 import pavel.lab.cinema.repository.SessionRepository;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,16 +32,22 @@ public class SessionService {
     private final SessionMapper sessionMapper;
     private final MovieRepository movieRepository;
     private final HallRepository hallRepository;
+    private final Map<CacheKey, PageResponse<SessionDTO>> sessionCache = new HashMap<>();
 
     private static final String NOT_FOUND_MSG = " not found";
     private static final String MOVIE_PREFIX = "Movie with ID ";
     private static final String SESSION_PREFIX = "Session with ID ";
 
     @Transactional(readOnly = true)
-    public List<SessionDTO> findAll() {
-        return sessionRepository.findAll().stream()
-                .map(sessionMapper::toDto)
-                .toList();
+    public PageResponse<SessionDTO> findAll(Pageable pageable) {
+        CacheKey key = new CacheKey(pageable);
+        if (sessionCache.containsKey(key)) {
+            return sessionCache.get(key);
+        }
+        Page<Session> sessionsPage = sessionRepository.findAll(pageable);
+        PageResponse<SessionDTO> dtosPage = new PageResponse<>(sessionsPage.map(sessionMapper::toDto));
+        sessionCache.put(key, dtosPage);
+        return dtosPage;
     }
 
     @Transactional
@@ -48,7 +60,7 @@ public class SessionService {
         Session session = sessionMapper.toEntity(dto);
         session.setMovie(movie);
         session.setHall(hall);
-
+        sessionCache.clear();
         return sessionMapper.toDto(sessionRepository.save(session));
     }
 
@@ -65,7 +77,7 @@ public class SessionService {
         session.setStartTime(dto.getStartTime());
         session.setMovie(movie);
         session.setHall(hall);
-
+        sessionCache.clear();
         return sessionMapper.toDto(session);
     }
 
@@ -79,6 +91,7 @@ public class SessionService {
     @Transactional
     public void delete(Long id) {
         sessionRepository.deleteById(id);
+        sessionCache.clear();
     }
 
     public List<SessionDTO> saveMultipleWithError(List<SessionRequestDTO> dtos) {
@@ -110,19 +123,27 @@ public class SessionService {
     }
 
     @Transactional
-    public List<SessionDTO> findSessionByMovie(String title) {
-        List<Session> sessions = sessionRepository.findSessionByMovie(title);
-        return sessions.stream()
-                .map(sessionMapper::toDto)
-                .toList();
+    public PageResponse<SessionDTO> findSessionByMovie(String title, Pageable pageable) {
+        CacheKey key = new CacheKey(pageable, title);
+        if (sessionCache.containsKey(key)) {
+            return sessionCache.get(key);
+        }
+        Page<Session> sessionsPage = sessionRepository.findSessionByMovie(title, pageable);
+        PageResponse<SessionDTO> dtosPage = new PageResponse<>(sessionsPage.map(sessionMapper::toDto));
+        sessionCache.put(key, dtosPage);
+        return dtosPage;
     }
 
     @Transactional
-    public List<SessionDTO> findSessionByMovieNative(String title) {
-        List<Session> sessions = sessionRepository.findSessionByMovieNative(title);
-        return sessions.stream()
-                .map(sessionMapper::toDto)
-                .toList();
+    public PageResponse<SessionDTO> findSessionByMovieNative(String title, Pageable pageable) {
+        CacheKey key = new CacheKey(pageable, title);
+        if (sessionCache.containsKey(key)) {
+            return sessionCache.get(key);
+        }
+        Page<Session> sessionsPage = sessionRepository.findSessionByMovieNative(title, pageable);
+        PageResponse<SessionDTO> dtosPage = new PageResponse<>(sessionsPage.map(sessionMapper::toDto));
+        sessionCache.put(key, dtosPage);
+        return dtosPage;
     }
 
 }

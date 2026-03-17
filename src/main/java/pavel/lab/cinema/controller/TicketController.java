@@ -1,6 +1,8 @@
 package pavel.lab.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,10 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.defaultdto.TicketDTO;
+import pavel.lab.cinema.dto.page.PageResponse;
 import pavel.lab.cinema.dto.requestdto.TicketRequestDTO;
 import pavel.lab.cinema.service.TicketService;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,8 +30,8 @@ public class TicketController {
     }
 
     @GetMapping
-    public List<TicketDTO> findAll() {
-        return ticketService.findAll();
+    public PageResponse<TicketDTO> findAll(@PageableDefault(size = 3) Pageable pageable) {
+        return ticketService.findAll(pageable);
     }
 
     @GetMapping("/lazy/{id}")
@@ -54,12 +55,14 @@ public class TicketController {
     }
 
     @GetMapping("/search")
-    public List<TicketDTO> findTicketsByVisitor(@RequestParam("visitorName") String name) {
-        return ticketService.findTicketsByVisitor(name);
+    public PageResponse<TicketDTO> findTicketsByVisitor(@RequestParam("visitorName") String name,
+                                                        @PageableDefault(size = 3) Pageable pageable) {
+        return ticketService.findTicketsByVisitor(name, pageable);
     }
 
     @GetMapping("/jpqlsearch")
-    public List<TicketDTO> findTicketsByVisitorJPQL(@RequestParam("visitorName") String name) {
-        return ticketService.findTicketsByVisitorJPQL(name);
+    public PageResponse<TicketDTO> findTicketsByVisitorJPQL(@RequestParam("visitorName") String name,
+                                                    @PageableDefault(size = 3) Pageable pageable) {
+        return ticketService.findTicketsByVisitorJPQL(name, pageable);
     }
 }

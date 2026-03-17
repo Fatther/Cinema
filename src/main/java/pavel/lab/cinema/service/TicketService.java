@@ -2,9 +2,13 @@ package pavel.lab.cinema.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pavel.lab.cinema.cache.CacheKey;
 import pavel.lab.cinema.dto.defaultdto.TicketDTO;
+import pavel.lab.cinema.dto.page.PageResponse;
 import pavel.lab.cinema.dto.requestdto.TicketRequestDTO;
 import pavel.lab.cinema.entity.Session;
 import pavel.lab.cinema.entity.Ticket;
@@ -15,7 +19,8 @@ import pavel.lab.cinema.repository.TicketRepository;
 import pavel.lab.cinema.repository.VisitorRepository;
 
 import java.security.InvalidParameterException;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class TicketService {
     private final TicketMapper ticketMapper;
     private final SessionRepository sessionRepository;
     private final VisitorRepository visitorRepository;
+    private final Map<CacheKey, PageResponse<TicketDTO>> ticketCache = new HashMap<>();
 
     private static final String NOT_FOUND_MSG = " not found";
     private static final String TICKET_PREFIX = "Ticket with ID ";
@@ -44,15 +50,20 @@ public class TicketService {
                 .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));
         ticket.setVisitor(visitor);
         Ticket savedTicket = ticketRepository.save(ticket);
+        ticketCache.clear();
         return ticketMapper.toDto(savedTicket);
     }
 
     @Transactional
-    public List<TicketDTO> findAll() {
-    List<Ticket> tickets = ticketRepository.findAll();
-    return tickets.stream()
-            .map(ticketMapper::toDto)
-            .toList();
+    public PageResponse<TicketDTO> findAll(Pageable pageable) {
+        CacheKey key = new CacheKey(pageable);
+        if (ticketCache.containsKey(key)) {
+            return ticketCache.get(key);
+        }
+        Page<Ticket> ticketsPage = ticketRepository.findAll(pageable);
+        PageResponse<TicketDTO> dtosPage = new PageResponse<>(ticketsPage.map(ticketMapper::toDto));
+        ticketCache.put(key, dtosPage);
+        return dtosPage;
     }
 
     @Transactional
@@ -81,27 +92,37 @@ public class TicketService {
                 .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));
         ticket.setVisitor(visitor);
         Ticket updatedTicket = ticketRepository.save(ticket);
+        ticketCache.clear();
         return ticketMapper.toDto(updatedTicket);
     }
 
     @Transactional
     public void delete(Long id) {
         ticketRepository.deleteById(id);
+        ticketCache.clear();
     }
 
     @Transactional
-    public List<TicketDTO> findTicketsByVisitor(String name) {
-        List<Ticket> tickets = ticketRepository.findTicketsByVisitor(name);
-        return tickets.stream()
-                .map(ticketMapper::toDto)
-                .toList();
+    public PageResponse<TicketDTO> findTicketsByVisitor(String name, Pageable pageable) {
+        CacheKey key = new CacheKey(pageable, name);
+        if (ticketCache.containsKey(key)) {
+            return ticketCache.get(key);
+        }
+        Page<Ticket> ticketsPage = ticketRepository.findTicketsByVisitor(name, pageable);
+        PageResponse<TicketDTO> dtosPage = new PageResponse<>(ticketsPage.map(ticketMapper::toDto));
+        ticketCache.put(key, dtosPage);
+        return dtosPage;
     }
 
     @Transactional
-    public List<TicketDTO> findTicketsByVisitorJPQL(String name) {
-        List<Ticket> tickets = ticketRepository.findTicketsByVisitorJPQL(name);
-        return tickets.stream()
-                .map(ticketMapper::toDto)
-                .toList();
+    public PageResponse<TicketDTO> findTicketsByVisitorJPQL(String name, Pageable pageable) {
+        CacheKey key = new CacheKey(pageable, name);
+        if (ticketCache.containsKey(key)) {
+            return ticketCache.get(key);
+        }
+        Page<Ticket> ticketsPage = ticketRepository.findTicketsByVisitorJPQL(name, pageable);
+        PageResponse<TicketDTO> dtosPage = new PageResponse<>(ticketsPage.map(ticketMapper::toDto));
+        ticketCache.put(key, dtosPage);
+        return dtosPage;
     }
 }

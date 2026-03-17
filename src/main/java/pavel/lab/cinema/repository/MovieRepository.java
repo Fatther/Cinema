@@ -12,7 +12,7 @@ import java.util.Optional;
 @NullMarked
 public interface MovieRepository extends JpaRepository<Movie, Long> {
 
-    @Query(value = "SELECT DISTINCT m from Movie m "
+    @Query("SELECT DISTINCT m from Movie m "
             + "LEFT JOIN FETCH m.genres "
             + "WHERE m.id = :id")
     Optional<Movie> findById(Long id);

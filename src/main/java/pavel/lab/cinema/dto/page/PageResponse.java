@@ -1,4 +1,4 @@
-package pavel.lab.cinema.dto.defaultdto;
+package pavel.lab.cinema.dto.page;
 
 import lombok.Getter;
 import org.springframework.data.domain.Page;

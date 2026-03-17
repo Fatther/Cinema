@@ -1,6 +1,8 @@
 package pavel.lab.cinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pavel.lab.cinema.dto.defaultdto.SessionDTO;
+import pavel.lab.cinema.dto.page.PageResponse;
 import pavel.lab.cinema.dto.requestdto.SessionRequestDTO;
 import pavel.lab.cinema.service.SessionService;
 
@@ -29,8 +32,8 @@ public class SessionController {
     }
 
     @GetMapping
-    public List<SessionDTO> findAll() {
-        return sessionService.findAll();
+    public PageResponse<SessionDTO> findAll(@PageableDefault(size = 3) Pageable pageable) {
+        return sessionService.findAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -59,12 +62,14 @@ public class SessionController {
     }
 
     @GetMapping("/search")
-    public List<SessionDTO> findSessionByMovie(@RequestParam String title) {
-        return sessionService.findSessionByMovie(title);
+    public PageResponse<SessionDTO> findSessionByMovie(@RequestParam String title,
+                                                       @PageableDefault(size = 3) Pageable pageable) {
+        return sessionService.findSessionByMovie(title, pageable);
     }
 
     @GetMapping("/nativesearch")
-    public List<SessionDTO> findSessionByMovieNative(@RequestParam String title) {
-        return sessionService.findSessionByMovieNative(title);
+    public PageResponse<SessionDTO> findSessionByMovieNative(@RequestParam String title,
+                                                     @PageableDefault(size = 3) Pageable pageable) {
+        return sessionService.findSessionByMovieNative(title, pageable);
     }
 }
