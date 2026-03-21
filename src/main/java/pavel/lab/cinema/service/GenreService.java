@@ -20,8 +20,8 @@ public class GenreService {
     private final GenreRepository genreRepository;
     private final GenreMapper genreMapper;
 
-    private static final String NOT_FOUND_MSG = " not found";
-    private static final String GENRE_PREFIX = "Genre with ID ";
+    private static final String NOT_FOUND_MSG = " не найден";
+    private static final String GENRE_PREFIX = "Жанр с ID ";
 
     @Transactional
     public GenreDTO create(

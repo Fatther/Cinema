@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class VisitorController {
     private final VisitorService visitorService;
 
     @PostMapping("/post")
-    public VisitorDTO create(@RequestBody VisitorRequestDTO dto) {
+    public VisitorDTO create(@Valid @RequestBody VisitorRequestDTO dto) {
         return visitorService.create(dto);
     }
 
@@ -33,7 +34,7 @@ public class VisitorController {
     }
 
     @PutMapping("/update/{id}")
-    public VisitorDTO update(@PathVariable Long id, @RequestBody VisitorRequestDTO dto) {
+    public VisitorDTO update(@PathVariable Long id, @Valid @RequestBody VisitorRequestDTO dto) {
         return visitorService.update(id, dto);
     }
 

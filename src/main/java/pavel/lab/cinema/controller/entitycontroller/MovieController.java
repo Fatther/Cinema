@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,13 +26,9 @@ public class MovieController {
 
     @PostMapping("/post")
     public MovieDTO create(
-            @RequestBody MovieRequestDTO dto
+            @Valid @RequestBody MovieRequestDTO dto
             ) {
-        try {
-            return movieService.create(dto);
-        } catch (Exception _) {
-            return null;
-        }
+        return movieService.create(dto);
     }
 
     @GetMapping
@@ -45,12 +42,8 @@ public class MovieController {
     }
 
     @PutMapping("/update/{id}")
-    public MovieDTO update(@PathVariable Long id, @RequestBody MovieRequestDTO dto) {
-        try {
-            return movieService.update(id, dto);
-        } catch (Exception _) {
-            return null;
-        }
+    public MovieDTO update(@PathVariable Long id, @Valid @RequestBody MovieRequestDTO dto) {
+        return movieService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

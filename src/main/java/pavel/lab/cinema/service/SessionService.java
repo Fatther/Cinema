@@ -34,9 +34,10 @@ public class SessionService {
     private final HallRepository hallRepository;
     private final Map<CacheKey, PageResponse<SessionDTO>> sessionCache = new HashMap<>();
 
-    private static final String NOT_FOUND_MSG = " not found";
-    private static final String MOVIE_PREFIX = "Movie with ID ";
-    private static final String SESSION_PREFIX = "Session with ID ";
+    private static final String NOT_FOUND_MSG = " не найден(а)";
+    private static final String MOVIE_PREFIX = "Фильм с ID ";
+    private static final String SESSION_PREFIX = "Сессия с ID ";
+    private static final String HALL_PREFIX = "Зал с ID ";
 
     @Transactional(readOnly = true)
     public PageResponse<SessionDTO> findAll(Pageable pageable) {
@@ -53,9 +54,9 @@ public class SessionService {
     @Transactional
     public SessionDTO create(SessionRequestDTO dto) {
         Movie movie = movieRepository.findById(dto.getMovieId())
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         Hall hall = hallRepository.findById(dto.getHallId())
-                .orElseThrow(() -> new EntityNotFoundException("Hall not found"));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
 
         Session session = sessionMapper.toEntity(dto);
         session.setMovie(movie);
@@ -67,12 +68,12 @@ public class SessionService {
     @Transactional
     public SessionDTO update(Long id, SessionRequestDTO dto) {
         Session session = sessionRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Session not found"));
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + id + NOT_FOUND_MSG));
 
         Movie movie = movieRepository.findById(dto.getMovieId())
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         Hall hall = hallRepository.findById(dto.getHallId())
-                .orElseThrow(() -> new EntityNotFoundException("Hall not found"));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
 
         session.setStartTime(dto.getStartTime());
         session.setMovie(movie);
@@ -100,7 +101,7 @@ public class SessionService {
 
         for (SessionRequestDTO dto : dtos) {
             if (count == 2) {
-                throw new EntityNotFoundException("Some trouble");
+                throw new EntityNotFoundException("Какая-то ошибка");
             }
 
             Session session = sessionMapper.toEntity(dto);

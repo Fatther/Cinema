@@ -62,14 +62,14 @@ public class MovieService {
     @Transactional
     public MovieDTO findById(Long id) {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Сущность с ID " + id + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
         return movieMapper.toDto(movie);
     }
 
     @Transactional
     public MovieDTO update(Long id, MovieRequestDTO dto) {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Сущность с ID " + id + " не найдена"));
+                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
         movie.setTitle(dto.getTitle());
         movie.setDuration(dto.getDuration());
         List<Genre> genres = genreRepository.findAllById(dto.getGenreIds());

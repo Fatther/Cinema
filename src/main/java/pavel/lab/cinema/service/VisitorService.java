@@ -37,7 +37,7 @@ public class VisitorService {
     @Transactional
     public VisitorDTO update(Long id, VisitorRequestDTO dto) {
         Visitor visitor = visitorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Visitor with id " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Посетитель с ID " + id + " не найден"));
         visitor.setName(dto.getName());
         visitor.setEmail(dto.getEmail());
         Visitor updatedVisitor = visitorRepository.save(visitor);
@@ -47,7 +47,7 @@ public class VisitorService {
     @Transactional
     public VisitorDTO findById(Long id) {
         Visitor visitor = visitorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Visitor with id " + id + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Посетитель с ID " + id + " не найден"));
         return visitorMapper.toDto(visitor);
     }
 

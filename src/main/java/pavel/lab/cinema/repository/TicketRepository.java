@@ -41,5 +41,5 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     + "WHERE v.name LIKE %:name%",
     countQuery = "SELECT COUNT(t) from Ticket t "
     + "JOIN t.visitor v WHERE v.name LIKE %:name%")
-    Page<Ticket> findTicketsByVisitorJPQL(String name,  Pageable pageable);
+    Page<Ticket> findTicketsByVisitorJPQL(String name, Pageable pageable);
 }

@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class HallController {
     private final HallService hallService;
 
     @PostMapping("/post")
-    public HallDTO create(@RequestBody HallRequestDTO dto) {
+    public HallDTO create(@Valid @RequestBody HallRequestDTO dto) {
         return hallService.save(dto);
     }
 
@@ -38,7 +39,7 @@ public class HallController {
     }
 
     @PutMapping("/update/{id}")
-    public HallDTO update(@PathVariable Long id, @RequestBody HallRequestDTO dto) {
+    public HallDTO update(@PathVariable Long id, @Valid @RequestBody HallRequestDTO dto) {
         return hallService.update(id, dto);
     }
 

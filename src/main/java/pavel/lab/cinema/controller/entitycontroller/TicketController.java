@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,7 +26,7 @@ public class TicketController {
     private final TicketService ticketService;
 
     @PostMapping("/post")
-    public TicketDTO create(@RequestBody TicketRequestDTO dto) {
+    public TicketDTO create(@Valid @RequestBody TicketRequestDTO dto) {
         return ticketService.create(dto);
     }
 
@@ -45,7 +46,7 @@ public class TicketController {
     }
 
     @PutMapping("/update/{id}")
-    public TicketDTO update(@PathVariable Long id, @RequestBody TicketRequestDTO dto) {
+    public TicketDTO update(@PathVariable Long id, @Valid @RequestBody TicketRequestDTO dto) {
         return ticketService.update(id, dto);
     }
 

@@ -1,5 +1,6 @@
 package pavel.lab.cinema.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,9 @@ public class HallService {
     private final HallRepository hallRepository;
     private final HallMapper hallMapper;
 
+    private static final String NOT_FOUND_MSG = " не найден";
+    private static final String HALL_PREFIX = "Зал с ID ";
+
     @Transactional
     public List<HallDTO> findAll() {
         return hallRepository.findAll().stream()
@@ -29,7 +33,7 @@ public class HallService {
     public HallDTO findById(Long id) {
         return hallRepository.findById(id)
                 .map(hallMapper::toDto)
-                .orElseThrow(() -> new RuntimeException("Hall not found"));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + id + NOT_FOUND_MSG));
     }
 
     @Transactional
@@ -41,7 +45,7 @@ public class HallService {
     @Transactional
     public HallDTO update(Long id, HallRequestDTO dto) {
         Hall existingHall = hallRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Hall not found"));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + id + NOT_FOUND_MSG));
         existingHall.setName(dto.getName());
         existingHall.setPrice(dto.getPrice());
         existingHall.setSeatAmount(dto.getSeatAmount());

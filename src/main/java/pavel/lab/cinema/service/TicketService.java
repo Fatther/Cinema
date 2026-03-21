@@ -18,7 +18,6 @@ import pavel.lab.cinema.repository.SessionRepository;
 import pavel.lab.cinema.repository.TicketRepository;
 import pavel.lab.cinema.repository.VisitorRepository;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,17 +31,17 @@ public class TicketService {
     private final VisitorRepository visitorRepository;
     private final Map<CacheKey, PageResponse<TicketDTO>> ticketCache = new HashMap<>();
 
-    private static final String NOT_FOUND_MSG = " not found";
-    private static final String TICKET_PREFIX = "Ticket with ID ";
-    private static final String SESSION_PREFIX = "Session with ID ";
-    private static final String VISITOR_PREFIX = "Visitor with ID ";
+    private static final String NOT_FOUND_MSG = " не найден(а)";
+    private static final String TICKET_PREFIX = "Билет с ID ";
+    private static final String SESSION_PREFIX = "Сессия с ID ";
+    private static final String VISITOR_PREFIX = "Посетитель с ID ";
 
     @Transactional
     public TicketDTO create(TicketRequestDTO dto) {
         Session session = sessionRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
         if (dto.getSeatNumber() > session.getHall().getSeatAmount()) {
-            throw new InvalidParameterException("In hall " + session.getHall().getName() + " is not enough seats");
+            throw new IllegalArgumentException(": в зале " + session.getHall().getName() + " недостаточно мест");
         }
         Ticket ticket = ticketMapper.toEntity(dto);
         ticket.setSession(session);
@@ -87,6 +86,9 @@ public class TicketService {
         ticket.setSeatNumber(dto.getSeatNumber());
         Session session = sessionRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
+        if (dto.getSeatNumber() > session.getHall().getSeatAmount()) {
+            throw new IllegalArgumentException(": в зале " + session.getHall().getName() + " недостаточно мест");
+        }
         ticket.setSession(session);
         Visitor visitor = visitorRepository.findById(dto.getVisitorId())
                 .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + dto.getVisitorId() + NOT_FOUND_MSG));

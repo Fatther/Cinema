@@ -1,0 +1,1656 @@
+openapi: 3.1.0
+info:
+  title: Cinema API
+  description: REST API для управления кинотеатром — фильмы, сеансы, залы, билеты, жанры и посетители.
+  version: v1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Локальный сервер разработки
+
+tags:
+  - name: genres
+    description: Управление жанрами фильмов
+  - name: halls
+    description: Управление кинозалами
+  - name: movies
+    description: Управление фильмами
+  - name: sessions
+    description: Управление сеансами
+  - name: tickets
+    description: Управление билетами
+  - name: visitors
+    description: Управление посетителями
+
+paths:
+
+  # ─── GENRES ────────────────────────────────────────────────────────────────
+
+  /genres:
+    get:
+      tags: [genres]
+      summary: Получить все жанры
+      description: Возвращает список всех жанров без пагинации.
+      operationId: getAllGenres
+      responses:
+        "200":
+          description: Список жанров успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GenreDTO"
+              example:
+                - id: 1
+                  name: Боевик
+                - id: 2
+                  name: Комедия
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /genres/{id}:
+    get:
+      tags: [genres]
+      summary: Получить жанр по ID
+      description: Возвращает жанр по указанному идентификатору. Если жанр не найден — возвращает 404.
+      operationId: getGenreById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Жанр найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreDTO"
+              example:
+                id: 1
+                name: Боевик
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /genres/post:
+    post:
+      tags: [genres]
+      summary: Создать жанр
+      description: Создаёт новый жанр. Название должно быть от 1 до 20 символов.
+      operationId: createGenre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenreRequestDTO"
+            example:
+              name: Триллер
+      responses:
+        "200":
+          description: Жанр успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreDTO"
+              example:
+                id: 3
+                name: Триллер
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/DataIntegrityError"
+
+  /genres/update/{id}:
+    put:
+      tags: [genres]
+      summary: Обновить жанр
+      description: Обновляет название жанра по ID. Название должно быть от 1 до 20 символов.
+      operationId: updateGenre
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenreRequestDTO"
+            example:
+              name: Мелодрама
+      responses:
+        "200":
+          description: Жанр успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenreDTO"
+              example:
+                id: 1
+                name: Мелодрама
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /genres/delete/{id}:
+    delete:
+      tags: [genres]
+      summary: Удалить жанр
+      description: Удаляет жанр по ID. Жанр автоматически отвязывается от всех фильмов перед удалением.
+      operationId: deleteGenre
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Жанр успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ─── HALLS ─────────────────────────────────────────────────────────────────
+
+  /halls:
+    get:
+      tags: [halls]
+      summary: Получить все залы
+      description: Возвращает список всех кинозалов без пагинации.
+      operationId: getAllHalls
+      responses:
+        "200":
+          description: Список залов успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/HallDTO"
+              example:
+                - id: 1
+                  name: Красный зал
+                  price: 350.0
+                  seatAmount: 100
+                - id: 2
+                  name: Синий зал
+                  price: 500.0
+                  seatAmount: 60
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /halls/{id}:
+    get:
+      tags: [halls]
+      summary: Получить зал по ID
+      description: Возвращает кинозал по указанному идентификатору.
+      operationId: getHallById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Зал найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HallDTO"
+              example:
+                id: 1
+                name: Красный зал
+                price: 350.0
+                seatAmount: 100
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /halls/post:
+    post:
+      tags: [halls]
+      summary: Создать зал
+      description: Создаёт новый кинозал. Цена и количество мест должны быть положительными числами.
+      operationId: createHall
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HallRequestDTO"
+            example:
+              name: VIP зал
+              price: 800.0
+              seatAmount: 30
+      responses:
+        "200":
+          description: Зал успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HallDTO"
+              example:
+                id: 3
+                name: VIP зал
+                price: 800.0
+                seatAmount: 30
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/DataIntegrityError"
+
+  /halls/update/{id}:
+    put:
+      tags: [halls]
+      summary: Обновить зал
+      description: Обновляет данные кинозала по ID.
+      operationId: updateHall
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HallRequestDTO"
+            example:
+              name: VIP зал
+              price: 900.0
+              seatAmount: 25
+      responses:
+        "200":
+          description: Зал успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HallDTO"
+              example:
+                id: 3
+                name: VIP зал
+                price: 900.0
+                seatAmount: 25
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /halls/delete/{id}:
+    delete:
+      tags: [halls]
+      summary: Удалить зал
+      description: Удаляет кинозал по ID.
+      operationId: deleteHall
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Зал успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ─── MOVIES ────────────────────────────────────────────────────────────────
+
+  /movies:
+    get:
+      tags: [movies]
+      summary: Получить все фильмы (с пагинацией)
+      description: Возвращает постраничный список фильмов. По умолчанию размер страницы — 3.
+      operationId: getAllMovies
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Список фильмов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseMovieDTO"
+              example:
+                content:
+                  - id: 1
+                    title: Интерстеллар
+                    duration: 169
+                    genres: [Фантастика, Драма]
+                  - id: 2
+                    title: Джокер
+                    duration: 122
+                    genres: [Триллер, Драма]
+                metadata:
+                  page: 0
+                  totalPage: 5
+                  size: 3
+                  totalElements: 14
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /movies/{id}:
+    get:
+      tags: [movies]
+      summary: Получить фильм по ID
+      description: Возвращает фильм по указанному идентификатору.
+      operationId: getMovieById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Фильм найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieDTO"
+              example:
+                id: 1
+                title: Интерстеллар
+                duration: 169
+                genres: [Фантастика, Драма]
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /movies/post:
+    post:
+      tags: [movies]
+      summary: Создать фильм
+      description: >
+        Создаёт новый фильм. Необходимо передать список ID существующих жанров.
+        Если хотя бы один жанр не найден — возвращается 404.
+      operationId: createMovie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRequestDTO"
+            example:
+              title: Дюна
+              duration: 155
+              genreIds: [1, 3]
+      responses:
+        "200":
+          description: Фильм успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieDTO"
+              example:
+                id: 5
+                title: Дюна
+                duration: 155
+                genres: [Фантастика, Боевик]
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /movies/update/{id}:
+    put:
+      tags: [movies]
+      summary: Обновить фильм
+      description: Обновляет данные фильма по ID, включая список жанров.
+      operationId: updateMovie
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovieRequestDTO"
+            example:
+              title: Дюна 2
+              duration: 166
+              genreIds: [1, 3]
+      responses:
+        "200":
+          description: Фильм успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovieDTO"
+              example:
+                id: 5
+                title: Дюна 2
+                duration: 166
+                genres: [Фантастика, Боевик]
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /movies/delete/{id}:
+    delete:
+      tags: [movies]
+      summary: Удалить фильм
+      description: Удаляет фильм по ID. Очищает кэш фильмов после удаления.
+      operationId: deleteMovie
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Фильм успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ─── SESSIONS ──────────────────────────────────────────────────────────────
+
+  /sessions:
+    get:
+      tags: [sessions]
+      summary: Получить все сеансы (с пагинацией)
+      description: Возвращает постраничный список сеансов. По умолчанию размер страницы — 3.
+      operationId: getAllSessions
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Список сеансов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseSessionDTO"
+              example:
+                content:
+                  - id: 1
+                    startTime: "2025-06-15T18:00:00"
+                    movieTitle: Интерстеллар
+                    hallName: Красный зал
+                    price: 350.0
+                metadata:
+                  page: 0
+                  totalPage: 3
+                  size: 3
+                  totalElements: 9
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/{id}:
+    get:
+      tags: [sessions]
+      summary: Получить сеанс по ID
+      description: Возвращает сеанс по указанному идентификатору.
+      operationId: getSessionById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Сеанс найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionDTO"
+              example:
+                id: 1
+                startTime: "2025-06-15T18:00:00"
+                movieTitle: Интерстеллар
+                hallName: Красный зал
+                price: 350.0
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/search:
+    get:
+      tags: [sessions]
+      summary: Поиск сеансов по названию фильма (JPQL)
+      description: Возвращает постраничный список сеансов, фильтрованных по названию фильма. Используется JPQL-запрос.
+      operationId: findSessionsByMovieJPQL
+      parameters:
+        - name: title
+          in: query
+          required: true
+          description: Название фильма (точное совпадение)
+          schema:
+            type: string
+            example: Интерстеллар
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Результаты поиска
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseSessionDTO"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/nativesearch:
+    get:
+      tags: [sessions]
+      summary: Поиск сеансов по названию фильма (Native SQL)
+      description: Аналог /sessions/search, но использует нативный SQL-запрос вместо JPQL.
+      operationId: findSessionsByMovieNative
+      parameters:
+        - name: title
+          in: query
+          required: true
+          description: Название фильма (точное совпадение)
+          schema:
+            type: string
+            example: Джокер
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Результаты поиска
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseSessionDTO"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/post:
+    post:
+      tags: [sessions]
+      summary: Создать сеанс
+      description: >
+        Создаёт новый сеанс. Время начала должно быть в настоящем или будущем.
+        Необходимо указать ID существующих фильма и зала.
+      operationId: createSession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequestDTO"
+            example:
+              startTime: "2025-07-20T19:30:00"
+              movieId: 1
+              hallId: 2
+      responses:
+        "200":
+          description: Сеанс успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionDTO"
+              example:
+                id: 10
+                startTime: "2025-07-20T19:30:00"
+                movieTitle: Интерстеллар
+                hallName: Синий зал
+                price: 500.0
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/post/good:
+    post:
+      tags: [sessions]
+      summary: Создать несколько сеансов (с транзакцией)
+      description: >
+        Создаёт несколько сеансов в рамках одной транзакции.
+        При ошибке на 3-м элементе все изменения откатываются — демонстрация транзакционности.
+      operationId: createMultipleSessionsTransactional
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/SessionRequestDTO"
+            example:
+              - startTime: "2025-08-01T10:00:00"
+                movieId: 1
+                hallId: 1
+              - startTime: "2025-08-01T14:00:00"
+                movieId: 2
+                hallId: 1
+              - startTime: "2025-08-01T18:00:00"
+                movieId: 1
+                hallId: 2
+      responses:
+        "200":
+          description: Все сеансы успешно созданы
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionDTO"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/post/bad:
+    post:
+      tags: [sessions]
+      summary: Создать несколько сеансов (без транзакции — демо ошибки)
+      description: >
+        Создаёт несколько сеансов БЕЗ транзакции. При ошибке на 3-м элементе
+        первые два сеанса уже сохранены в БД и не откатятся — демонстрация
+        проблемы отсутствия транзакции.
+      operationId: createMultipleSessionsNoTransaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/SessionRequestDTO"
+            example:
+              - startTime: "2025-08-02T10:00:00"
+                movieId: 1
+                hallId: 1
+              - startTime: "2025-08-02T14:00:00"
+                movieId: 2
+                hallId: 1
+              - startTime: "2025-08-02T18:00:00"
+                movieId: 1
+                hallId: 2
+      responses:
+        "200":
+          description: Часть сеансов создана (до ошибки)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SessionDTO"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/update/{id}:
+    put:
+      tags: [sessions]
+      summary: Обновить сеанс
+      description: Обновляет данные сеанса по ID — время начала, фильм и зал.
+      operationId: updateSession
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionRequestDTO"
+            example:
+              startTime: "2025-07-21T20:00:00"
+              movieId: 2
+              hallId: 1
+      responses:
+        "200":
+          description: Сеанс успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionDTO"
+              example:
+                id: 10
+                startTime: "2025-07-21T20:00:00"
+                movieTitle: Джокер
+                hallName: Красный зал
+                price: 350.0
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /sessions/delete/{id}:
+    delete:
+      tags: [sessions]
+      summary: Удалить сеанс
+      description: Удаляет сеанс по ID и очищает кэш.
+      operationId: deleteSession
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Сеанс успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ─── TICKETS ───────────────────────────────────────────────────────────────
+
+  /tickets:
+    get:
+      tags: [tickets]
+      summary: Получить все билеты (с пагинацией)
+      description: Возвращает постраничный список всех билетов. По умолчанию размер страницы — 3.
+      operationId: getAllTickets
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Список билетов успешно получен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseTicketDTO"
+              example:
+                content:
+                  - id: 1
+                    seatNumber: 15
+                    visitorEmail: ivan@example.com
+                    session:
+                      id: 1
+                      startTime: "2025-06-15T18:00:00"
+                      movieTitle: Интерстеллар
+                      hallName: Красный зал
+                      price: 350.0
+                metadata:
+                  page: 0
+                  totalPage: 4
+                  size: 3
+                  totalElements: 12
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/{id}:
+    get:
+      tags: [tickets]
+      summary: Получить билет по ID (эффективный запрос)
+      description: >
+        Возвращает билет по ID с использованием JOIN FETCH — загружает все связанные
+        сущности одним запросом, избегая проблемы N+1.
+      operationId: getTicketById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Билет найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDTO"
+              example:
+                id: 1
+                seatNumber: 15
+                visitorEmail: ivan@example.com
+                session:
+                  id: 1
+                  startTime: "2025-06-15T18:00:00"
+                  movieTitle: Интерстеллар
+                  hallName: Красный зал
+                  price: 350.0
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/lazy/{id}:
+    get:
+      tags: [tickets]
+      summary: Получить билет по ID (с ленивой загрузкой — демо N+1)
+      description: >
+        Возвращает билет по ID с ленивой загрузкой связанных сущностей.
+        Демонстрирует проблему N+1 запросов — используйте /tickets/{id} в продакшне.
+      operationId: getTicketLazyById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Билет найден (с дополнительными запросами к БД)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDTO"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/search:
+    get:
+      tags: [tickets]
+      summary: Поиск билетов по имени посетителя (Native SQL)
+      description: Возвращает постраничный список билетов указанного посетителя. Использует нативный SQL.
+      operationId: findTicketsByVisitorNative
+      parameters:
+        - name: visitorName
+          in: query
+          required: true
+          description: Имя посетителя (точное совпадение)
+          schema:
+            type: string
+            example: Иван
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Результаты поиска
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseTicketDTO"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/jpqlsearch:
+    get:
+      tags: [tickets]
+      summary: Поиск билетов по имени посетителя (JPQL)
+      description: Аналог /tickets/search, но использует JPQL-запрос вместо нативного SQL.
+      operationId: findTicketsByVisitorJPQL
+      parameters:
+        - name: visitorName
+          in: query
+          required: true
+          description: Имя посетителя (точное совпадение)
+          schema:
+            type: string
+            example: Иван
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/SizeParam"
+        - $ref: "#/components/parameters/SortParam"
+      responses:
+        "200":
+          description: Результаты поиска
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageResponseTicketDTO"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/post:
+    post:
+      tags: [tickets]
+      summary: Создать билет
+      description: >
+        Создаёт билет для посетителя на указанный сеанс.
+        Номер места не должен превышать количество мест в зале.
+      operationId: createTicket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketRequestDTO"
+            example:
+              sessionId: 1
+              visitorId: 2
+              seatNumber: 15
+      responses:
+        "200":
+          description: Билет успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDTO"
+              example:
+                id: 7
+                seatNumber: 15
+                visitorEmail: ivan@example.com
+                session:
+                  id: 1
+                  startTime: "2025-06-15T18:00:00"
+                  movieTitle: Интерстеллар
+                  hallName: Красный зал
+                  price: 350.0
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/update/{id}:
+    put:
+      tags: [tickets]
+      summary: Обновить билет
+      description: Обновляет данные билета по ID — номер места, сеанс и посетителя.
+      operationId: updateTicket
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TicketRequestDTO"
+            example:
+              sessionId: 2
+              visitorId: 2
+              seatNumber: 20
+      responses:
+        "200":
+          description: Билет успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDTO"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /tickets/delete/{id}:
+    delete:
+      tags: [tickets]
+      summary: Удалить билет
+      description: Удаляет билет по ID и очищает кэш.
+      operationId: deleteTicket
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Билет успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  # ─── VISITORS ──────────────────────────────────────────────────────────────
+
+  /visitors:
+    get:
+      tags: [visitors]
+      summary: Получить всех посетителей
+      description: Возвращает список всех посетителей без пагинации.
+      operationId: getAllVisitors
+      responses:
+        "200":
+          description: Список посетителей успешно получен
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitorDTO"
+              example:
+                - id: 1
+                  name: Иван
+                  email: ivan@example.com
+                - id: 2
+                  name: Мария
+                  email: maria@example.com
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /visitors/{id}:
+    get:
+      tags: [visitors]
+      summary: Получить посетителя по ID
+      description: Возвращает посетителя по указанному идентификатору.
+      operationId: getVisitorById
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Посетитель найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorDTO"
+              example:
+                id: 1
+                name: Иван
+                email: ivan@example.com
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /visitors/post:
+    post:
+      tags: [visitors]
+      summary: Создать посетителя
+      description: >
+        Регистрирует нового посетителя. Имя — от 1 до 20 символов.
+        Email должен быть валидным и содержать от 11 до 30 символов.
+      operationId: createVisitor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorRequestDTO"
+            example:
+              name: Алексей
+              email: alexey@example.com
+      responses:
+        "200":
+          description: Посетитель успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorDTO"
+              example:
+                id: 3
+                name: Алексей
+                email: alexey@example.com
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/DataIntegrityError"
+
+  /visitors/update/{id}:
+    put:
+      tags: [visitors]
+      summary: Обновить посетителя
+      description: Обновляет имя и email посетителя по ID.
+      operationId: updateVisitor
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitorRequestDTO"
+            example:
+              name: Алексей Новый
+              email: alexey.new@example.com
+      responses:
+        "200":
+          description: Посетитель успешно обновлён
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitorDTO"
+              example:
+                id: 3
+                name: Алексей Новый
+                email: alexey.new@example.com
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /visitors/delete/{id}:
+    delete:
+      tags: [visitors]
+      summary: Удалить посетителя
+      description: Удаляет посетителя по ID.
+      operationId: deleteVisitor
+      parameters:
+        - $ref: "#/components/parameters/IdPathParam"
+      responses:
+        "200":
+          description: Посетитель успешно удалён
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+# ─── COMPONENTS ──────────────────────────────────────────────────────────────
+
+components:
+
+  parameters:
+    IdPathParam:
+      name: id
+      in: path
+      required: true
+      description: Уникальный идентификатор ресурса
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    PageParam:
+      name: page
+      in: query
+      required: false
+      description: Номер страницы (начиная с 0)
+      schema:
+        type: integer
+        format: int32
+        minimum: 0
+        default: 0
+        example: 0
+
+    SizeParam:
+      name: size
+      in: query
+      required: false
+      description: Количество элементов на странице (по умолчанию 3)
+      schema:
+        type: integer
+        format: int32
+        minimum: 1
+        default: 3
+        example: 3
+
+    SortParam:
+      name: sort
+      in: query
+      required: false
+      description: "Сортировка в формате: поле,направление (например: id,asc)"
+      schema:
+        type: array
+        items:
+          type: string
+        example: ["id,asc"]
+
+  responses:
+    BadRequest:
+      description: >
+        Некорректный запрос (400). Возможные причины:
+        ошибка валидации полей (`@Valid`),
+        неверный формат JSON,
+        неправильный тип параметра,
+        нарушение бизнес-логики (например, номер места превышает вместимость зала).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            validationError:
+              summary: Ошибка валидации входных данных
+              value:
+                status: 400
+                message: "Некорректный запрос: ошибка валидации входных данных"
+                time: "2025-06-15T12:00:00"
+            typeMismatch:
+              summary: Неправильный тип параметра
+              value:
+                status: 400
+                message: "Некорректный запрос: неправильный тип передаваемого параметра"
+                time: "2025-06-15T12:00:00"
+            invalidJson:
+              summary: Ошибка формата JSON
+              value:
+                status: 400
+                message: "Некорректный запрос: ошибка в формате JSON-сообщения"
+                time: "2025-06-15T12:00:00"
+            businessLogic:
+              summary: Нарушение бизнес-логики (IllegalArgumentException)
+              value:
+                status: 400
+                message: "Некорректный запрос: в зале Красный зал недостаточно мест"
+                time: "2025-06-15T12:00:00"
+
+    NotFound:
+      description: Ресурс не найден (404). Возникает при обращении к несуществующей сущности.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 404
+            message: "Фильм с ID 99 не найден"
+            time: "2025-06-15T12:00:00"
+
+    MethodNotAllowed:
+      description: >
+        Неправильный HTTP-метод (405).
+        Возникает при обращении к эндпоинту с недопустимым методом
+        (например, POST вместо GET).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 405
+            message: "Неправильный тип запроса"
+            time: "2025-06-15T12:00:00"
+
+    DataIntegrityError:
+      description: >
+        Нарушение целостности данных (500).
+        Возникает при нарушении ограничений БД — уникальности, внешних ключей и т.п.
+        (`DataIntegrityViolationException`, `ConstraintViolationException`).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 500
+            message: "Нарушение целостности входных данных"
+            time: "2025-06-15T12:00:00"
+
+    InternalServerError:
+      description: >
+        Непредвиденная ошибка сервера (500).
+        Возникает при любом необработанном исключении.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            status: 500
+            message: "Непредвиденная ошибка на сервере"
+            time: "2025-06-15T12:00:00"
+
+  schemas:
+
+    # ── Request DTOs ──────────────────────────────────────────────────────────
+
+    GenreRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления жанра
+      required: [name]
+      properties:
+        name:
+          type: string
+          description: Название жанра (от 1 до 20 символов)
+          minLength: 1
+          maxLength: 20
+          example: Фантастика
+
+    HallRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления кинозала
+      required: [name, price, seatAmount]
+      properties:
+        name:
+          type: string
+          description: Название зала (от 1 до 20 символов)
+          minLength: 1
+          maxLength: 20
+          example: VIP зал
+        price:
+          type: number
+          format: double
+          description: Цена билета в зале (положительное число)
+          exclusiveMinimum: 0
+          example: 800.0
+        seatAmount:
+          type: integer
+          format: int32
+          description: Количество мест в зале (положительное целое число)
+          exclusiveMinimum: 0
+          example: 30
+
+    MovieRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления фильма
+      required: [title, duration, genreIds]
+      properties:
+        title:
+          type: string
+          description: Название фильма (от 1 до 50 символов)
+          minLength: 1
+          maxLength: 50
+          example: Интерстеллар
+        duration:
+          type: integer
+          format: int32
+          description: Длительность фильма в минутах (положительное число)
+          exclusiveMinimum: 0
+          example: 169
+        genreIds:
+          type: array
+          description: Список ID жанров, привязанных к фильму
+          items:
+            type: integer
+            format: int64
+          example: [1, 3]
+
+    SessionRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления сеанса
+      required: [startTime, movieId, hallId]
+      properties:
+        startTime:
+          type: string
+          format: date-time
+          description: "Время начала сеанса в формате ISO 8601 (настоящее или будущее время)"
+          example: "2025-07-20T19:30:00"
+        movieId:
+          type: integer
+          format: int64
+          description: ID фильма, который будет показан на сеансе
+          example: 1
+        hallId:
+          type: integer
+          format: int64
+          description: ID зала, в котором проводится сеанс
+          example: 2
+
+    TicketRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления билета
+      required: [sessionId, visitorId, seatNumber]
+      properties:
+        sessionId:
+          type: integer
+          format: int64
+          description: ID сеанса, на который приобретается билет
+          example: 1
+        visitorId:
+          type: integer
+          format: int64
+          description: ID посетителя, покупающего билет
+          example: 2
+        seatNumber:
+          type: integer
+          format: int32
+          description: Номер места (не должен превышать вместимость зала)
+          exclusiveMinimum: 0
+          example: 15
+
+    VisitorRequestDTO:
+      type: object
+      description: Тело запроса для создания или обновления посетителя
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          description: Имя посетителя (от 1 до 20 символов)
+          minLength: 1
+          maxLength: 20
+          example: Иван
+        email:
+          type: string
+          format: email
+          description: Email посетителя (от 11 до 30 символов, валидный формат)
+          minLength: 11
+          maxLength: 30
+          example: ivan@example.com
+
+    # ── Response DTOs ─────────────────────────────────────────────────────────
+
+    GenreDTO:
+      type: object
+      description: Данные жанра
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор жанра
+          example: 1
+        name:
+          type: string
+          description: Название жанра
+          example: Фантастика
+
+    HallDTO:
+      type: object
+      description: Данные кинозала
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор зала
+          example: 1
+        name:
+          type: string
+          description: Название зала
+          example: Красный зал
+        price:
+          type: number
+          format: double
+          description: Цена билета в данном зале
+          example: 350.0
+        seatAmount:
+          type: integer
+          format: int32
+          description: Количество мест в зале
+          example: 100
+
+    MovieDTO:
+      type: object
+      description: Данные фильма
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор фильма
+          example: 1
+        title:
+          type: string
+          description: Название фильма
+          example: Интерстеллар
+        duration:
+          type: integer
+          format: int32
+          description: Длительность фильма в минутах
+          example: 169
+        genres:
+          type: array
+          description: Список названий жанров фильма
+          items:
+            type: string
+          example: [Фантастика, Драма]
+
+    SessionDTO:
+      type: object
+      description: Данные сеанса
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор сеанса
+          example: 1
+        startTime:
+          type: string
+          format: date-time
+          description: Время начала сеанса
+          example: "2025-06-15T18:00:00"
+        movieTitle:
+          type: string
+          description: Название фильма
+          example: Интерстеллар
+        hallName:
+          type: string
+          description: Название зала
+          example: Красный зал
+        price:
+          type: number
+          format: double
+          description: Цена билета (берётся из зала)
+          example: 350.0
+
+    TicketDTO:
+      type: object
+      description: Данные билета
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор билета
+          example: 1
+        seatNumber:
+          type: integer
+          format: int32
+          description: Номер места
+          example: 15
+        session:
+          $ref: "#/components/schemas/SessionDTO"
+        visitorEmail:
+          type: string
+          description: Email посетителя, которому принадлежит билет
+          example: ivan@example.com
+
+    VisitorDTO:
+      type: object
+      description: Данные посетителя
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Уникальный идентификатор посетителя
+          example: 1
+        name:
+          type: string
+          description: Имя посетителя
+          example: Иван
+        email:
+          type: string
+          description: Email посетителя
+          example: ivan@example.com
+
+    # ── Pagination ────────────────────────────────────────────────────────────
+
+    Metadata:
+      type: object
+      description: Метаданные пагинации
+      properties:
+        page:
+          type: integer
+          format: int32
+          description: Текущий номер страницы (начиная с 0)
+          example: 0
+        totalPage:
+          type: integer
+          format: int32
+          description: Общее количество страниц
+          example: 5
+        size:
+          type: integer
+          format: int32
+          description: Размер страницы
+          example: 3
+        totalElements:
+          type: integer
+          format: int64
+          description: Общее количество элементов во всех страницах
+          example: 14
+
+    PageResponseMovieDTO:
+      type: object
+      description: Постраничный ответ со списком фильмов
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovieDTO"
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+
+    PageResponseSessionDTO:
+      type: object
+      description: Постраничный ответ со списком сеансов
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/SessionDTO"
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+
+    PageResponseTicketDTO:
+      type: object
+      description: Постраничный ответ со списком билетов
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/TicketDTO"
+        metadata:
+          $ref: "#/components/schemas/Metadata"
+
+    # ── Error ─────────────────────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      description: Стандартный ответ при ошибке
+      properties:
+        status:
+          type: integer
+          format: int32
+          description: HTTP-код ошибки
+          example: 404
+        message:
+          type: string
+          description: Человекочитаемое описание ошибки
+          example: "Фильм с ID 5 не найден"
+        time:
+          type: string
+          format: date-time
+          description: Время возникновения ошибки
+          example: "2025-06-15T12:00:00"

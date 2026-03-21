@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +24,7 @@ public class GenreController {
     private final GenreService genreService;
 
     @PostMapping("/post")
-    public GenreDTO create(@RequestBody GenreRequestDTO dto) {
+    public GenreDTO create(@Valid @RequestBody GenreRequestDTO dto) {
         return genreService.create(dto);
     }
 
@@ -36,24 +37,15 @@ public class GenreController {
     public GenreDTO findById(
             @PathVariable Long id
     ) {
-        try {
-            return genreService.findById(id);
-        } catch (Exception _) {
-            return null;
-        }
-
+        return genreService.findById(id);
     }
 
     @PutMapping("/update/{id}")
     public GenreDTO update(
             @PathVariable Long id,
-            @RequestBody GenreRequestDTO dto
+            @Valid @RequestBody GenreRequestDTO dto
     ) {
-        try {
-            return genreService.update(id, dto);
-        } catch (Exception _) {
-            return null;
-        }
+        return genreService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

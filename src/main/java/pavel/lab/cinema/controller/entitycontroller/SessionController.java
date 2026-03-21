@@ -1,5 +1,6 @@
-package pavel.lab.cinema.controller;
+package pavel.lab.cinema.controller.entitycontroller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,7 +28,7 @@ public class SessionController {
     private final SessionService sessionService;
 
     @PostMapping("/post")
-    public SessionDTO create(@RequestBody SessionRequestDTO dto) {
+    public SessionDTO create(@Valid @RequestBody SessionRequestDTO dto) {
         return sessionService.create(dto);
     }
 
@@ -42,7 +43,7 @@ public class SessionController {
     }
 
     @PutMapping("/update/{id}")
-    public SessionDTO update(@PathVariable Long id, @RequestBody SessionRequestDTO dto) {
+    public SessionDTO update(@PathVariable Long id, @Valid @RequestBody SessionRequestDTO dto) {
         return sessionService.update(id, dto);
     }
 
