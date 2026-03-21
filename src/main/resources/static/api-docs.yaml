@@ -23,7 +23,7 @@ tags:
 
 paths:
 
-  # ─── GENRES ────────────────────────────────────────────────────────────────
+
 
   /genres:
     get:
@@ -159,7 +159,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  # ─── HALLS ─────────────────────────────────────────────────────────────────
+
 
   /halls:
     get:
@@ -309,7 +309,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  # ─── MOVIES ────────────────────────────────────────────────────────────────
+
 
   /movies:
     get:
@@ -471,7 +471,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  # ─── SESSIONS ──────────────────────────────────────────────────────────────
+
 
   /sessions:
     get:
@@ -778,7 +778,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  # ─── TICKETS ───────────────────────────────────────────────────────────────
+
 
   /tickets:
     get:
@@ -1030,7 +1030,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-  # ─── VISITORS ──────────────────────────────────────────────────────────────
+
 
   /visitors:
     get:
@@ -1175,7 +1175,7 @@ paths:
         "500":
           $ref: "#/components/responses/InternalServerError"
 
-# ─── COMPONENTS ──────────────────────────────────────────────────────────────
+
 
 components:
 
@@ -1317,7 +1317,7 @@ components:
 
   schemas:
 
-    # ── Request DTOs ──────────────────────────────────────────────────────────
+
 
     GenreRequestDTO:
       type: object
@@ -1442,7 +1442,7 @@ components:
           maxLength: 30
           example: ivan@example.com
 
-    # ── Response DTOs ─────────────────────────────────────────────────────────
+
 
     GenreDTO:
       type: object
@@ -1574,7 +1574,7 @@ components:
           description: Email посетителя
           example: ivan@example.com
 
-    # ── Pagination ────────────────────────────────────────────────────────────
+
 
     Metadata:
       type: object
@@ -1633,8 +1633,6 @@ components:
             $ref: "#/components/schemas/TicketDTO"
         metadata:
           $ref: "#/components/schemas/Metadata"
-
-    # ── Error ─────────────────────────────────────────────────────────────────
 
     ErrorResponse:
       type: object
