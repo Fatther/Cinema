@@ -2,6 +2,7 @@ package pavel.lab.cinema.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pavel.lab.cinema.dto.defaultdto.VisitorDTO;
@@ -12,6 +13,7 @@ import pavel.lab.cinema.repository.VisitorRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VisitorService {
@@ -23,6 +25,7 @@ public class VisitorService {
     public VisitorDTO create(VisitorRequestDTO dto) {
         Visitor visitor = visitorMapper.toEntity(dto);
         Visitor createdVisitor = visitorRepository.save(visitor);
+        log.info("Посетитель " + visitor.getName() + " добавлен в базу");
         return visitorMapper.toDto(createdVisitor);
     }
 
@@ -41,6 +44,7 @@ public class VisitorService {
         visitor.setName(dto.getName());
         visitor.setEmail(dto.getEmail());
         Visitor updatedVisitor = visitorRepository.save(visitor);
+        log.info("Посетитель с ID " + id + " обновлён");
         return visitorMapper.toDto(updatedVisitor);
     }
 
@@ -54,5 +58,6 @@ public class VisitorService {
     @Transactional
     public void delete(Long id) {
         visitorRepository.deleteById(id);
+        log.info("Посетитель с ID " + id + " удалён");
     }
 }

@@ -2,6 +2,7 @@ package pavel.lab.cinema.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import pavel.lab.cinema.repository.VisitorRepository;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketService {
@@ -50,6 +52,7 @@ public class TicketService {
         ticket.setVisitor(visitor);
         Ticket savedTicket = ticketRepository.save(ticket);
         ticketCache.clear();
+        log.info("Билет на сессию с ID " + dto.getSessionId() + " создан");
         return ticketMapper.toDto(savedTicket);
     }
 
@@ -95,6 +98,7 @@ public class TicketService {
         ticket.setVisitor(visitor);
         Ticket updatedTicket = ticketRepository.save(ticket);
         ticketCache.clear();
+        log.info("Билет с ID " + id + " обновлён");
         return ticketMapper.toDto(updatedTicket);
     }
 
@@ -102,6 +106,7 @@ public class TicketService {
     public void delete(Long id) {
         ticketRepository.deleteById(id);
         ticketCache.clear();
+        log.info("Билет с ID " + id + " удалён");
     }
 
     @Transactional

@@ -3,6 +3,7 @@ package pavel.lab.cinema.service;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MovieService {
@@ -42,6 +44,7 @@ public class MovieService {
         movie.setGenres(genres);
         Movie savedMovie = movieRepository.save(movie);
         movieCache.clear();
+        log.info("Фильм " + dto.getTitle() + " создан");
         return movieMapper.toDto(savedMovie);
     }
 
@@ -79,11 +82,13 @@ public class MovieService {
         movie.setGenres(genres);
         Movie savedMovie = movieRepository.save(movie);
         movieCache.clear();
+        log.info("Фильм с ID" + id + " обновлён");
         return movieMapper.toDto(savedMovie);
     }
 
     public void delete(Long id) {
         movieRepository.deleteById(id);
         movieCache.clear();
+        log.info("Фильм с ID" + id + " удалён");
     }
 }

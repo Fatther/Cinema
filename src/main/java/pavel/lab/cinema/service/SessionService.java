@@ -3,6 +3,7 @@ package pavel.lab.cinema.service;
 import jakarta.persistence.EntityNotFoundException;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SessionService {
@@ -62,6 +64,7 @@ public class SessionService {
         session.setMovie(movie);
         session.setHall(hall);
         sessionCache.clear();
+        log.info("Сессия на фильм " + movie.getTitle() + " создана");
         return sessionMapper.toDto(sessionRepository.save(session));
     }
 
@@ -79,6 +82,7 @@ public class SessionService {
         session.setMovie(movie);
         session.setHall(hall);
         sessionCache.clear();
+        log.info("Сессия с ID " + id + " обновлена");
         return sessionMapper.toDto(session);
     }
 
@@ -93,6 +97,7 @@ public class SessionService {
     public void delete(Long id) {
         sessionRepository.deleteById(id);
         sessionCache.clear();
+        log.info("Сессия с ID " + id + " удалена");
     }
 
     public List<SessionDTO> saveMultipleWithError(List<SessionRequestDTO> dtos) {

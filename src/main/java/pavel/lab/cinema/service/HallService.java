@@ -2,6 +2,7 @@ package pavel.lab.cinema.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pavel.lab.cinema.dto.defaultdto.HallDTO;
@@ -12,6 +13,7 @@ import pavel.lab.cinema.repository.HallRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HallService {
@@ -39,6 +41,7 @@ public class HallService {
     @Transactional
     public HallDTO save(HallRequestDTO dto) {
         Hall hall = hallMapper.toEntity(dto);
+        log.info("Зал " + dto.getName() + " создан");
         return hallMapper.toDto(hallRepository.save(hall));
     }
 
@@ -49,11 +52,13 @@ public class HallService {
         existingHall.setName(dto.getName());
         existingHall.setPrice(dto.getPrice());
         existingHall.setSeatAmount(dto.getSeatAmount());
+        log.info("Зал с ID " + id + " обновлён");
         return hallMapper.toDto(existingHall);
     }
 
     @Transactional
     public void delete(Long id) {
         hallRepository.deleteById(id);
+        log.info("Зал с ID " + id + " удалён");
     }
 }
