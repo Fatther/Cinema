@@ -21,6 +21,9 @@ public class VisitorService {
     private final VisitorRepository visitorRepository;
     private final VisitorMapper visitorMapper;
 
+    private static final String VISITOR_PREFIX = "Посетитель с ID";
+    private static final String NOT_FOUND_MSG = " не найден";
+
     @Transactional
     public VisitorDTO create(VisitorRequestDTO dto) {
         Visitor visitor = visitorMapper.toEntity(dto);
@@ -40,24 +43,24 @@ public class VisitorService {
     @Transactional
     public VisitorDTO update(Long id, VisitorRequestDTO dto) {
         Visitor visitor = visitorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Посетитель с ID " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + id + NOT_FOUND_MSG));
         visitor.setName(dto.getName());
         visitor.setEmail(dto.getEmail());
         Visitor updatedVisitor = visitorRepository.save(visitor);
-        log.info("Посетитель с ID " + id + " обновлён");
+        log.info(VISITOR_PREFIX + id + " обновлён");
         return visitorMapper.toDto(updatedVisitor);
     }
 
     @Transactional
     public VisitorDTO findById(Long id) {
         Visitor visitor = visitorRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Посетитель с ID " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + id + NOT_FOUND_MSG));
         return visitorMapper.toDto(visitor);
     }
 
     @Transactional
     public void delete(Long id) {
         visitorRepository.deleteById(id);
-        log.info("Посетитель с ID " + id + " удалён");
+        log.info(VISITOR_PREFIX + id + " удалён");
     }
 }

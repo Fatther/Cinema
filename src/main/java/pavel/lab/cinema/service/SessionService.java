@@ -82,7 +82,7 @@ public class SessionService {
         session.setMovie(movie);
         session.setHall(hall);
         sessionCache.clear();
-        log.info("Сессия с ID " + id + " обновлена");
+        log.info(SESSION_PREFIX + id + " обновлена");
         return sessionMapper.toDto(session);
     }
 
@@ -97,7 +97,7 @@ public class SessionService {
     public void delete(Long id) {
         sessionRepository.deleteById(id);
         sessionCache.clear();
-        log.info("Сессия с ID " + id + " удалена");
+        log.info(SESSION_PREFIX + id + " удалена");
     }
 
     public List<SessionDTO> saveMultipleWithError(List<SessionRequestDTO> dtos) {

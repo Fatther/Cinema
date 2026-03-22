@@ -52,13 +52,13 @@ public class HallService {
         existingHall.setName(dto.getName());
         existingHall.setPrice(dto.getPrice());
         existingHall.setSeatAmount(dto.getSeatAmount());
-        log.info("Зал с ID " + id + " обновлён");
+        log.info(HALL_PREFIX + id + " обновлён");
         return hallMapper.toDto(existingHall);
     }
 
     @Transactional
     public void delete(Long id) {
         hallRepository.deleteById(id);
-        log.info("Зал с ID " + id + " удалён");
+        log.info(HALL_PREFIX + id + " удалён");
     }
 }

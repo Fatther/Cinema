@@ -98,7 +98,7 @@ public class TicketService {
         ticket.setVisitor(visitor);
         Ticket updatedTicket = ticketRepository.save(ticket);
         ticketCache.clear();
-        log.info("Билет с ID " + id + " обновлён");
+        log.info(TICKET_PREFIX + id + " обновлён");
         return ticketMapper.toDto(updatedTicket);
     }
 
@@ -106,7 +106,7 @@ public class TicketService {
     public void delete(Long id) {
         ticketRepository.deleteById(id);
         ticketCache.clear();
-        log.info("Билет с ID " + id + " удалён");
+        log.info(TICKET_PREFIX + id + " удалён");
     }
 
     @Transactional
