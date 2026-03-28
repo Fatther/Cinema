@@ -32,6 +32,9 @@ public class MovieService {
     private final GenreRepository genreRepository;
     private final Map<CacheKey, PageResponse<MovieDTO>> movieCache = new HashMap<>();
 
+    private static final String NOT_FOUND_MSG = " не найден";
+    private static final String MOVIE_PREFIX = "Фильм с ID ";
+
     @Transactional
     public MovieDTO create(
             MovieRequestDTO dto
@@ -65,14 +68,14 @@ public class MovieService {
     @Transactional
     public MovieDTO findById(Long id) {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + id + NOT_FOUND_MSG));
         return movieMapper.toDto(movie);
     }
 
     @Transactional
     public MovieDTO update(Long id, MovieRequestDTO dto) {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Фильм с ID " + id + " не найден"));
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + id + NOT_FOUND_MSG));
         movie.setTitle(dto.getTitle());
         movie.setDuration(dto.getDuration());
         List<Genre> genres = genreRepository.findAllById(dto.getGenreIds());
@@ -87,7 +90,9 @@ public class MovieService {
     }
 
     public void delete(Long id) {
-        movieRepository.deleteById(id);
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + id + NOT_FOUND_MSG));
+        movieRepository.delete(movie);
         movieCache.clear();
         log.info("Фильм с ID" + id + " удалён");
     }

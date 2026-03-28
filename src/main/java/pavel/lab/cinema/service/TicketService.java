@@ -104,7 +104,9 @@ public class TicketService {
 
     @Transactional
     public void delete(Long id) {
-        ticketRepository.deleteById(id);
+        Ticket ticket = ticketRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(TICKET_PREFIX + id + NOT_FOUND_MSG));
+        ticketRepository.delete(ticket);
         ticketCache.clear();
         log.info(TICKET_PREFIX + id + " удалён");
     }

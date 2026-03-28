@@ -58,7 +58,9 @@ public class HallService {
 
     @Transactional
     public void delete(Long id) {
-        hallRepository.deleteById(id);
+        Hall hall = hallRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + id + NOT_FOUND_MSG));
+        hallRepository.delete(hall);
         log.info(HALL_PREFIX + id + " удалён");
     }
 }

@@ -21,7 +21,7 @@ public class VisitorService {
     private final VisitorRepository visitorRepository;
     private final VisitorMapper visitorMapper;
 
-    private static final String VISITOR_PREFIX = "Посетитель с ID";
+    private static final String VISITOR_PREFIX = "Посетитель с ID ";
     private static final String NOT_FOUND_MSG = " не найден";
 
     @Transactional
@@ -60,7 +60,9 @@ public class VisitorService {
 
     @Transactional
     public void delete(Long id) {
-        visitorRepository.deleteById(id);
+        Visitor visitor = visitorRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(VISITOR_PREFIX + id + NOT_FOUND_MSG));
+        visitorRepository.delete(visitor);
         log.info(VISITOR_PREFIX + id + " удалён");
     }
 }

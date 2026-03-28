@@ -58,7 +58,7 @@ public class SessionService {
         Movie movie = movieRepository.findById(dto.getMovieId())
                 .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         Hall hall = hallRepository.findById(dto.getHallId())
-                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getHallId() + NOT_FOUND_MSG));
 
         Session session = sessionMapper.toEntity(dto);
         session.setMovie(movie);
@@ -76,7 +76,7 @@ public class SessionService {
         Movie movie = movieRepository.findById(dto.getMovieId())
                 .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
         Hall hall = hallRepository.findById(dto.getHallId())
-                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
+                .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getHallId() + NOT_FOUND_MSG));
 
         session.setStartTime(dto.getStartTime());
         session.setMovie(movie);
@@ -95,37 +95,32 @@ public class SessionService {
 
     @Transactional
     public void delete(Long id) {
-        sessionRepository.deleteById(id);
+        Session session = sessionRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + id + NOT_FOUND_MSG));
+        sessionRepository.delete(session);
         sessionCache.clear();
         log.info(SESSION_PREFIX + id + " удалена");
     }
 
-    public List<SessionDTO> saveMultipleWithError(List<SessionRequestDTO> dtos) {
+    public List<SessionDTO> saveMultipleUnsafe(List<SessionRequestDTO> dtos) {
         List<SessionDTO> result = new ArrayList<>();
-        int count = 0;
-
         for (SessionRequestDTO dto : dtos) {
-            if (count == 2) {
-                throw new EntityNotFoundException("Какая-то ошибка");
-            }
-
-            Session session = sessionMapper.toEntity(dto);
             Movie movie = movieRepository.findById(dto.getMovieId())
                     .orElseThrow(() -> new EntityNotFoundException(MOVIE_PREFIX + dto.getMovieId() + NOT_FOUND_MSG));
-
+            Hall hall = hallRepository.findById(dto.getHallId())
+                    .orElseThrow(() -> new EntityNotFoundException(HALL_PREFIX + dto.getHallId() + NOT_FOUND_MSG));
+            Session session = sessionMapper.toEntity(dto);
             session.setMovie(movie);
+            session.setHall(hall);
             Session savedSession = sessionRepository.save(session);
-
             result.add(sessionMapper.toDto(savedSession));
-
-            count++;
         }
         return result;
     }
 
     @Transactional
-    public List<SessionDTO> saveMultipleWithoutError(List<SessionRequestDTO> dtos) {
-        return saveMultipleWithError(dtos);
+    public List<SessionDTO> saveMultipleSafe(List<SessionRequestDTO> dtos) {
+        return saveMultipleUnsafe(dtos);
     }
 
     @Transactional

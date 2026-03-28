@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/sessions")
 @RequiredArgsConstructor
+@Validated
 public class SessionController {
 
     private final SessionService sessionService;
@@ -52,14 +54,14 @@ public class SessionController {
         sessionService.delete(id);
     }
 
-    @PostMapping("/post/bad")
-    public List<SessionDTO> createMultipleWithError(@RequestBody List<SessionRequestDTO> dtos) {
-        return sessionService.saveMultipleWithError(dtos);
+    @PostMapping("/post/bulk/unsafe")
+    public List<SessionDTO> createMultipleUnsafe(@RequestBody @Valid List<SessionRequestDTO> dtos) {
+        return sessionService.saveMultipleUnsafe(dtos);
     }
 
-    @PostMapping("/post/good")
-    public List<SessionDTO> createMultipleWithoutError(@RequestBody List<SessionRequestDTO> dtos) {
-        return sessionService.saveMultipleWithoutError(dtos);
+    @PostMapping("/post/bulk/safe")
+    public List<SessionDTO> createMultipleSafe(@RequestBody @Valid List<SessionRequestDTO> dtos) {
+        return sessionService.saveMultipleSafe(dtos);
     }
 
     @GetMapping("/search")
