@@ -228,7 +228,9 @@ class SessionServiceTest {
     void saveMultipleUnsafe_throwsWhenMovieNotFound() {
         when(movieRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sessionService.saveMultipleUnsafe(List.of(sessionRequestDTO)))
+        List<SessionRequestDTO> dtos = List.of(sessionRequestDTO);
+
+        assertThatThrownBy(() -> sessionService.saveMultipleUnsafe(dtos))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Фильм с ID 1 не найден(а)");
     }
@@ -238,7 +240,9 @@ class SessionServiceTest {
         when(movieRepository.findById(1L)).thenReturn(Optional.of(movie));
         when(hallRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> sessionService.saveMultipleUnsafe(List.of(sessionRequestDTO)))
+        List<SessionRequestDTO> dtos = List.of(sessionRequestDTO);
+
+        assertThatThrownBy(() -> sessionService.saveMultipleUnsafe(dtos))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessage("Зал с ID 1 не найден(а)");
     }
