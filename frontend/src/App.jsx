@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API = "";
+const API = "http://localhost:8080";
 
+// ─── API helpers (не трогаем) ────────────────────────────────────────────────
 const api = {
   get: (url) => fetch(`${API}${url}`).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
   post: (url, body) => fetch(`${API}${url}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
@@ -9,6 +10,7 @@ const api = {
   del: (url) => fetch(`${API}${url}`, { method: "DELETE" }).then(r => { if (!r.ok && r.status !== 204) throw new Error(r.statusText); }),
 };
 
+// ─── Icons ───────────────────────────────────────────────────────────────────
 const Icon = ({ name, size = 16 }) => {
   const icons = {
     film: <><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></>,
@@ -33,6 +35,7 @@ const Icon = ({ name, size = 16 }) => {
   );
 };
 
+// ─── Toast ───────────────────────────────────────────────────────────────────
 let toastFn = null;
 const Toast = () => {
   const [toasts, setToasts] = useState([]);
@@ -63,6 +66,7 @@ const Toast = () => {
 };
 const toast = (msg, type) => toastFn?.(msg, type);
 
+// ─── Modal ───────────────────────────────────────────────────────────────────
 const Modal = ({ title, onClose, children }) => (
   <div style={{
     position: "fixed", inset: 0,
@@ -88,6 +92,7 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
+// ─── Form helpers ─────────────────────────────────────────────────────────────
 const Field = ({ label, children }) => (
   <div style={{ marginBottom: 18 }}>
     <label style={{ display: "block", fontSize: 11, color: "#3b5470", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.09em", fontWeight: 700 }}>{label}</label>
@@ -113,6 +118,7 @@ const btnStyle = (variant = "primary") => ({
   whiteSpace: "nowrap",
 });
 
+// ─── Badge ────────────────────────────────────────────────────────────────────
 const Badge = ({ label }) => (
   <span style={{
     background: "#0a1e38", color: "#60a5fa", border: "1px solid #163052",
@@ -121,6 +127,7 @@ const Badge = ({ label }) => (
   }}>{label}</span>
 );
 
+// ─── Pagination ───────────────────────────────────────────────────────────────
 const Pagination = ({ meta, onPage }) => {
   if (!meta || meta.totalPage <= 1) return null;
   return (
@@ -134,15 +141,19 @@ const Pagination = ({ meta, onPage }) => {
   );
 };
 
+// ─── Table ────────────────────────────────────────────────────────────────────
+// Каждая колонка обязана иметь width. Последняя колонка без width получает "auto"
+// но только если она одна такая — поэтому в cols всегда указываем width явно.
+// th и td имеют одинаковый padding и textAlign: center → шапка всегда над значением.
 
-const CELL = { padding: "10px 14px", textAlign: "center", verticalAlign: "middle" };
+const CELL = { padding: "14px 20px", textAlign: "center", verticalAlign: "middle" };
 
 const Table = ({ cols, rows, onEdit, onDelete }) => (
   <div style={{ width: "100%", overflowX: "auto" }}>
     <table style={{
       width: "100%",
       borderCollapse: "collapse",
-      fontSize: 13,
+      fontSize: 15,
       tableLayout: "fixed",   // ← обязательно, иначе браузер сам раздаёт ширины
     }}>
       <colgroup>
@@ -215,14 +226,15 @@ const Table = ({ cols, rows, onEdit, onDelete }) => (
   </div>
 );
 
+// ─── Section wrapper ──────────────────────────────────────────────────────────
 const Section = ({ title, icon, onAdd, children }) => (
   <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ background: "#091830", border: "1px solid #122645", borderRadius: 10, padding: "8px 9px", display: "flex" }}>
           <span style={{ color: "#3b82f6" }}><Icon name={icon} size={17} /></span>
         </div>
-        <h2 style={{ margin: 0, fontSize: 20, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.02em" }}>{title}</h2>
+        <h2 style={{ margin: 0, fontSize: 26, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#f1f5f9", letterSpacing: "-0.02em" }}>{title}</h2>
       </div>
       <button style={btnStyle()} onClick={onAdd}><Icon name="plus" size={13} />Добавить</button>
     </div>
@@ -232,6 +244,7 @@ const Section = ({ title, icon, onAdd, children }) => (
   </div>
 );
 
+// ─── SearchBar ────────────────────────────────────────────────────────────────
 const SearchBar = ({ value, onChange, onSearch, onReset, placeholder }) => (
   <div style={{ display: "flex", gap: 8, padding: "16px 16px 0" }}>
     <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
@@ -334,7 +347,7 @@ const Movies = () => {
   const [genres, setGenres] = useState([]);
   const [form, setForm] = useState({ title: "", duration: "", genreIds: [] });
   const load = useCallback(() =>
-    api.get(`/movies?page=${page}&size=10`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
+    api.get(`/movies?page=${page}&size=5`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.get("/genres").then(setGenres).catch(() => {}); }, []);
   const openCreate = () => { setForm({ title: "", duration: "", genreIds: [] }); setModal({ mode: "create" }); };
@@ -366,7 +379,7 @@ const Movies = () => {
       {modal && (<Modal title={modal.mode === "create" ? "Новый фильм" : "Редактировать фильм"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Название фильма" maxLength={50} /></Field>
         <Field label="Длительность (мин)"><input style={inputStyle} type="number" value={form.duration} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="120" /></Field>
-        <Field label="Жанры">
+        <Field label="Жанры (ManyToMany)">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "10px 14px", background: "#080c14", border: "1px solid #1e2d40", borderRadius: 9 }}>
             {genres.length === 0 && <span style={{ color: "#233547", fontSize: 12 }}>Нет жанров</span>}
             {genres.map(g => (
@@ -393,7 +406,7 @@ const Sessions = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ startTime: "", movieId: "", hallId: "" });
   const load = useCallback(() => {
-    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=10` : `/sessions?page=${page}&size=10`;
+    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=5` : `/sessions?page=${page}&size=5`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки сеансов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -492,7 +505,7 @@ const Tickets = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ sessionId: "", visitorId: "", seatNumber: "" });
   const load = useCallback(() => {
-    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=10` : `/tickets?page=${page}&size=10`;
+    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=5` : `/tickets?page=${page}&size=5`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -535,7 +548,7 @@ const Tickets = () => {
             <div style={{ color: "#3b5470", fontSize: 11 }}>{date}</div>
           </div> : <span style={{ color: "#1e2d3d" }}>—</span>;
         }},
-        { key: "visitorEmail", label: "Email посетителя", width: "100%" },
+        { key: "visitorEmail", label: "Посетитель", width: "100%" },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       <Pagination meta={meta} onPage={setPage} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый билет" : "Редактировать билет"} onClose={() => setModal(null)}>
@@ -548,6 +561,7 @@ const Tickets = () => {
   );
 };
 
+// ─── NAV + APP ────────────────────────────────────────────────────────────────
 const NAV = [
   { id: "genres",   label: "Жанры",      icon: "tag" },
   { id: "halls",    label: "Залы",        icon: "building" },
@@ -566,7 +580,7 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body, #root { width: 100%; min-height: 100vh; }
+        html, body, #root { width: 100%; min-height: 100vh; font-size: 16px; }
         body { background: #060a10; color: #e2e8f0; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -582,7 +596,7 @@ export default function App() {
 
         {/* Sidebar */}
         <aside style={{
-          width: 228, flexShrink: 0,
+          width: 260, flexShrink: 0,
           background: "#070c15",
           borderRight: "1px solid #0e1a28",
           display: "flex", flexDirection: "column",
@@ -592,10 +606,11 @@ export default function App() {
           <div style={{ padding: "26px 20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
               <div style={{ background: "linear-gradient(135deg,#1a42b5,#3b82f6)", borderRadius: 11, padding: "8px 9px", display: "flex", boxShadow: "0 4px 18px rgba(59,130,246,0.25)" }}>
-                <Icon name="layers" size={17} />
+                <Icon name="film" size={18} />
               </div>
               <div>
                 <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#f8fafc", letterSpacing: "-0.02em" }}>Cinema</div>
+                <div style={{ fontSize: 9.5, color: "#1e3050", letterSpacing: "0.14em", fontWeight: 700, marginTop: 1 }}>ADMIN PANEL</div>
               </div>
             </div>
           </div>
@@ -614,7 +629,7 @@ export default function App() {
                   border: "none", borderRadius: 10,
                   outline: on ? "1px solid #112a4a" : "none",
                   color: on ? "#60a5fa" : "#2d4a6a",
-                  cursor: "pointer", fontSize: 13,
+                  cursor: "pointer", fontSize: 15,
                   fontFamily: "'Inter', sans-serif", fontWeight: on ? 600 : 400,
                   transition: "all 0.13s", textAlign: "left",
                 }}
@@ -630,15 +645,15 @@ export default function App() {
           </nav>
 
           <div style={{ padding: "14px 20px", borderTop: "1px solid #0a1525" }}>
+            <div style={{ fontSize: 10.5, color: "#152030", fontFamily: "monospace", letterSpacing: "0.02em" }}>localhost:8080</div>
           </div>
         </aside>
 
         {/* Main */}
         <main style={{
-          flex: 1, minWidth: 0, width: 0, padding: "24px 28px",
+          flex: 1, minWidth: 0, width: 0, padding: "32px 40px",
           background: "radial-gradient(ellipse 70% 35% at 50% 0%,#091828 0%,#060a10 55%)",
           overflow: "hidden",
-          maxWidth: 1100,
         }}>
           {pages[active]}
         </main>
