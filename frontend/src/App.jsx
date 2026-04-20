@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 
 const API = "";
 
-// ─── API helpers (не трогаем) ────────────────────────────────────────────────
 const api = {
   get: (url) => fetch(`${API}${url}`).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
   post: (url, body) => fetch(`${API}${url}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
@@ -10,7 +9,6 @@ const api = {
   del: (url) => fetch(`${API}${url}`, { method: "DELETE" }).then(r => { if (!r.ok && r.status !== 204) throw new Error(r.statusText); }),
 };
 
-// ─── Icons ───────────────────────────────────────────────────────────────────
 const Icon = ({ name, size = 16 }) => {
   const icons = {
     film: <><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></>,
@@ -35,7 +33,6 @@ const Icon = ({ name, size = 16 }) => {
   );
 };
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
 let toastFn = null;
 const Toast = () => {
   const [toasts, setToasts] = useState([]);
@@ -66,7 +63,6 @@ const Toast = () => {
 };
 const toast = (msg, type) => toastFn?.(msg, type);
 
-// ─── Modal ───────────────────────────────────────────────────────────────────
 const Modal = ({ title, onClose, children }) => (
   <div style={{
     position: "fixed", inset: 0,
@@ -92,7 +88,6 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
-// ─── Form helpers ─────────────────────────────────────────────────────────────
 const Field = ({ label, children }) => (
   <div style={{ marginBottom: 18 }}>
     <label style={{ display: "block", fontSize: 11, color: "#3b5470", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.09em", fontWeight: 700 }}>{label}</label>
@@ -118,7 +113,6 @@ const btnStyle = (variant = "primary") => ({
   whiteSpace: "nowrap",
 });
 
-// ─── Badge ────────────────────────────────────────────────────────────────────
 const Badge = ({ label }) => (
   <span style={{
     background: "#0a1e38", color: "#60a5fa", border: "1px solid #163052",
@@ -127,7 +121,6 @@ const Badge = ({ label }) => (
   }}>{label}</span>
 );
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
 const Pagination = ({ meta, onPage }) => {
   if (!meta || meta.totalPage <= 1) return null;
   return (
@@ -141,57 +134,68 @@ const Pagination = ({ meta, onPage }) => {
   );
 };
 
-// ─── Table ────────────────────────────────────────────────────────────────────
-// table-layout: fixed + явные ширины колонок = шапка никогда не ломается
+
+const CELL = { padding: "10px 14px", textAlign: "center", verticalAlign: "middle" };
+
 const Table = ({ cols, rows, onEdit, onDelete }) => (
-  <div style={{ overflowX: "auto", width: "100%" }}>
-    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, tableLayout: "fixed" }}>
+  <div style={{ width: "100%", overflowX: "auto" }}>
+    <table style={{
+      width: "100%",
+      borderCollapse: "collapse",
+      fontSize: 13,
+      tableLayout: "fixed",   // ← обязательно, иначе браузер сам раздаёт ширины
+    }}>
       <colgroup>
-        {cols.map(c => <col key={c.key} style={{ width: c.width ?? "auto" }} />)}
-        <col style={{ width: 88 }} />
+        {cols.map(c => <col key={c.key} style={{ width: c.width }} />)}
+        <col style={{ width: 100 }} />
       </colgroup>
+
       <thead>
-        <tr style={{ background: "#070d16" }}>
+        <tr style={{ background: "#060d18" }}>
           {cols.map(c => (
             <th key={c.key} style={{
-              padding: "11px 16px", textAlign: "left",
+              ...CELL,
               color: "#2d4a6a", fontWeight: 700, fontSize: 10,
               textTransform: "uppercase", letterSpacing: "0.1em",
-              borderBottom: "1px solid #0f1c2b",
-              whiteSpace: "nowrap",       // шапка — одна строка всегда
-              overflow: "hidden", textOverflow: "ellipsis",
+              borderBottom: "1px solid #0e1b2a",
+              whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
             }}>{c.label}</th>
           ))}
           <th style={{
-            padding: "11px 16px", textAlign: "center",
+            ...CELL,
             color: "#2d4a6a", fontWeight: 700, fontSize: 10,
             textTransform: "uppercase", letterSpacing: "0.1em",
-            borderBottom: "1px solid #0f1c2b", whiteSpace: "nowrap",
+            borderBottom: "1px solid #0e1b2a", whiteSpace: "nowrap",
           }}>Действия</th>
         </tr>
       </thead>
+
       <tbody>
         {rows.length === 0 && (
-          <tr><td colSpan={cols.length + 1} style={{ padding: "48px 16px", textAlign: "center", color: "#1e2d3d", fontSize: 13 }}>— нет данных —</td></tr>
+          <tr>
+            <td colSpan={cols.length + 1} style={{ padding: "48px 16px", textAlign: "center", color: "#1e2d3d", fontSize: 13 }}>
+              — нет данных —
+            </td>
+          </tr>
         )}
         {rows.map((row, i) => (
           <tr key={row.id ?? i}
             style={{ borderBottom: "1px solid #0a1220", transition: "background 0.1s" }}
-            onMouseEnter={e => e.currentTarget.style.background = "#0a1018"}
+            onMouseEnter={e => e.currentTarget.style.background = "#0b1120"}
             onMouseLeave={e => e.currentTarget.style.background = "transparent"}
           >
             {cols.map(c => (
-              <td key={c.key} style={{ padding: "11px 16px", color: "#7a94b0", verticalAlign: "middle", overflow: "hidden", maxWidth: 0 }}>
-                <div style={c.render
-                  ? { display: "flex", flexWrap: "wrap" }
-                  : { whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }
-                }>
-                  {c.render ? c.render(row) : String(row[c.key] ?? "—")}
-                </div>
+              <td key={c.key} style={{ ...CELL, color: "#7a94b0", overflow: "hidden" }}>
+                {c.render
+                  ? c.render(row)
+                  : <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {String(row[c.key] ?? "—")}
+                    </span>
+                }
               </td>
             ))}
-            <td style={{ padding: "9px 16px", verticalAlign: "middle" }}>
-              <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+            <td style={{ ...CELL }}>
+              <div style={{ display: "inline-flex", gap: 6 }}>
                 <button onClick={() => onEdit(row)} title="Редактировать"
                   style={{ background: "#0c1828", border: "1px solid #172845", borderRadius: 7, color: "#3b7dd8", cursor: "pointer", padding: "6px 8px", display: "flex" }}
                   onMouseEnter={e => e.currentTarget.style.background = "#112240"}
@@ -211,10 +215,9 @@ const Table = ({ cols, rows, onEdit, onDelete }) => (
   </div>
 );
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
 const Section = ({ title, icon, onAdd, children }) => (
   <div>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 22 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ background: "#091830", border: "1px solid #122645", borderRadius: 10, padding: "8px 9px", display: "flex" }}>
           <span style={{ color: "#3b82f6" }}><Icon name={icon} size={17} /></span>
@@ -223,13 +226,12 @@ const Section = ({ title, icon, onAdd, children }) => (
       </div>
       <button style={btnStyle()} onClick={onAdd}><Icon name="plus" size={13} />Добавить</button>
     </div>
-    <div style={{ background: "#08101a", border: "1px solid #111f30", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 40px rgba(0,0,0,0.4)" }}>
+    <div style={{ background: "#08101a", border: "1px solid #111f30", borderRadius: 14, overflow: "hidden", boxShadow: "0 4px 40px rgba(0,0,0,0.4)", width: "100%", minWidth: 0 }}>
       {children}
     </div>
   </div>
 );
 
-// ─── SearchBar ────────────────────────────────────────────────────────────────
 const SearchBar = ({ value, onChange, onSearch, onReset, placeholder }) => (
   <div style={{ display: "flex", gap: 8, padding: "16px 16px 0" }}>
     <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
@@ -278,7 +280,7 @@ const Genres = () => {
   };
   return (
     <Section title="Жанры" icon="tag" onAdd={openCreate}>
-      <Table cols={[{ key: "id", label: "ID", width: 70 }, { key: "name", label: "Название" }]} rows={data} onEdit={openEdit} onDelete={del} />
+      <Table cols={[{ key: "id", label: "ID", width: 80 }, { key: "name", label: "Название", width: "100%" }]} rows={data} onEdit={openEdit} onDelete={del} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый жанр" : "Редактировать жанр"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.name} onChange={e => setForm({ name: e.target.value })} placeholder="Боевик" maxLength={20} /></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
@@ -309,10 +311,10 @@ const Halls = () => {
   return (
     <Section title="Залы" icon="building" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 70 },
-        { key: "name", label: "Название", width: "35%" },
-        { key: "price", label: "Цена", width: 110, render: r => <span style={{ color: "#fbbf24", fontWeight: 600 }}>{r.price} ₽</span> },
-        { key: "seatAmount", label: "Мест", width: 90 },
+        { key: "id", label: "ID", width: 80 },
+        { key: "name", label: "Название", width: "100%" },
+        { key: "price", label: "Цена", width: 120, render: r => <span style={{ color: "#f1f5f9", fontWeight: 700 }}>{r.price} р.</span> },
+        { key: "seatAmount", label: "Мест", width: 100 },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый зал" : "Редактировать зал"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Зал 1" maxLength={20} /></Field>
@@ -332,7 +334,7 @@ const Movies = () => {
   const [genres, setGenres] = useState([]);
   const [form, setForm] = useState({ title: "", duration: "", genreIds: [] });
   const load = useCallback(() =>
-    api.get(`/movies?page=${page}&size=5`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
+    api.get(`/movies?page=${page}&size=10`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.get("/genres").then(setGenres).catch(() => {}); }, []);
   const openCreate = () => { setForm({ title: "", duration: "", genreIds: [] }); setModal({ mode: "create" }); };
@@ -355,16 +357,16 @@ const Movies = () => {
   return (
     <Section title="Фильмы" icon="film" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 60 },
-        { key: "title", label: "Название", width: "28%" },
-        { key: "duration", label: "Длит.", width: 90, render: r => <span>{r.duration} мин</span> },
-        { key: "genres", label: "Жанры · ManyToMany", render: r => <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>{(r.genres || []).map(g => <Badge key={g} label={g} />)}</div> },
+        { key: "id", label: "ID", width: 80 },
+        { key: "title", label: "Название", width: 240 },
+        { key: "duration", label: "Длительность", width: 140, render: r => <span>{r.duration} мин</span> },
+        { key: "genres", label: "Жанры", width: "100%", render: r => <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>{(r.genres || []).map(g => <Badge key={g} label={g} />)}</div> },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       <Pagination meta={meta} onPage={setPage} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый фильм" : "Редактировать фильм"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Название фильма" maxLength={50} /></Field>
         <Field label="Длительность (мин)"><input style={inputStyle} type="number" value={form.duration} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="120" /></Field>
-        <Field label="Жанры (ManyToMany)">
+        <Field label="Жанры">
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, padding: "10px 14px", background: "#080c14", border: "1px solid #1e2d40", borderRadius: 9 }}>
             {genres.length === 0 && <span style={{ color: "#233547", fontSize: 12 }}>Нет жанров</span>}
             {genres.map(g => (
@@ -391,7 +393,7 @@ const Sessions = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ startTime: "", movieId: "", hallId: "" });
   const load = useCallback(() => {
-    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=5` : `/sessions?page=${page}&size=5`;
+    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=10` : `/sessions?page=${page}&size=10`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки сеансов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -421,17 +423,24 @@ const Sessions = () => {
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по фильму..." />
       <CardDivider />
       <Table cols={[
-        { key: "id", label: "ID", width: 60 },
-        { key: "startTime", label: "Начало", width: 138, render: r => <span style={{ color: "#e2e8f0", fontVariantNumeric: "tabular-nums" }}>{r.startTime?.replace("T", " ").slice(0, 16)}</span> },
-        { key: "movieTitle", label: "Фильм · ManyToOne", width: "30%" },
-        { key: "hallName", label: "Зал · ManyToOne", width: "18%" },
-        { key: "price", label: "Цена", width: 90, render: r => <span style={{ color: "#fbbf24", fontWeight: 600 }}>{r.price} ₽</span> },
+        { key: "id", label: "ID", width: 80 },
+        { key: "startTime", label: "Начало", width: 120, render: r => {
+          const dt = r.startTime?.replace("T", " ").slice(0, 16) ?? "";
+          const [date, time] = dt.split(" ");
+          return <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
+            <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{time}</div>
+            <div style={{ color: "#3b5470", fontSize: 11 }}>{date}</div>
+          </div>;
+        }},
+        { key: "movieTitle", label: "Фильм", width: "100%" },
+        { key: "hallName", label: "Зал", width: 140 },
+        { key: "price", label: "Цена", width: 100, render: r => <span style={{ color: "#f1f5f9", fontWeight: 700 }}>{r.price} р.</span> },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       <Pagination meta={meta} onPage={setPage} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый сеанс" : "Редактировать сеанс"} onClose={() => setModal(null)}>
         <Field label="Дата и время"><input style={inputStyle} type="datetime-local" value={form.startTime} onChange={e => setForm(p => ({ ...p, startTime: e.target.value }))} /></Field>
         <Field label="Фильм"><select style={inputStyle} value={form.movieId} onChange={e => setForm(p => ({ ...p, movieId: e.target.value }))}><option value="">— выбрать —</option>{movies.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></Field>
-        <Field label="Зал"><select style={inputStyle} value={form.hallId} onChange={e => setForm(p => ({ ...p, hallId: e.target.value }))}><option value="">— выбрать —</option>{halls.map(h => <option key={h.id} value={h.id}>{h.name} ({h.price} ₽)</option>)}</select></Field>
+        <Field label="Зал"><select style={inputStyle} value={form.hallId} onChange={e => setForm(p => ({ ...p, hallId: e.target.value }))}><option value="">— выбрать —</option>{halls.map(h => <option key={h.id} value={h.id}>{h.name} ({h.price} р.)</option>)}</select></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
       </Modal>)}
     </Section>
@@ -459,9 +468,9 @@ const Visitors = () => {
   return (
     <Section title="Посетители" icon="user" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 70 },
-        { key: "name", label: "Имя", width: "35%" },
-        { key: "email", label: "Email" },
+        { key: "id", label: "ID", width: 80 },
+        { key: "name", label: "Имя", width: 200 },
+        { key: "email", label: "Email", width: "100%" },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый посетитель" : "Редактировать посетителя"} onClose={() => setModal(null)}>
         <Field label="Имя"><input style={inputStyle} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Иван Иванов" maxLength={20} /></Field>
@@ -483,7 +492,7 @@ const Tickets = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ sessionId: "", visitorId: "", seatNumber: "" });
   const load = useCallback(() => {
-    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=5` : `/tickets?page=${page}&size=5`;
+    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=10` : `/tickets?page=${page}&size=10`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -512,13 +521,21 @@ const Tickets = () => {
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по посетителю..." />
       <CardDivider />
       <Table cols={[
-        { key: "id", label: "ID", width: 60 },
-        { key: "seatNumber", label: "Место", width: 80 },
-        { key: "session", label: "Сеанс · ManyToOne", width: "40%", render: r => r.session
-          ? <span style={{ color: "#94a3b8" }}>{r.session.movieTitle}<span style={{ color: "#233547" }}> · </span><span style={{ color: "#475569" }}>{r.session.startTime?.slice(0, 16).replace("T", " ")}</span></span>
+        { key: "id", label: "ID", width: 80 },
+        { key: "seatNumber", label: "Место", width: 100 },
+        { key: "session", label: "Фильм", width: 220, render: r => r.session
+          ? <span style={{ color: "#cbd5e1" }}>{r.session.movieTitle}</span>
           : "—"
         },
-        { key: "visitorEmail", label: "Посетитель · ManyToOne" },
+        { key: "sessionTime", label: "Дата сеанса", width: 130, render: r => {
+          const dt = r.session?.startTime?.slice(0, 16).replace("T", " ") ?? "";
+          const [date, time] = dt.split(" ");
+          return dt ? <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
+            <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{time}</div>
+            <div style={{ color: "#3b5470", fontSize: 11 }}>{date}</div>
+          </div> : <span style={{ color: "#1e2d3d" }}>—</span>;
+        }},
+        { key: "visitorEmail", label: "Email посетителя", width: "100%" },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
       <Pagination meta={meta} onPage={setPage} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый билет" : "Редактировать билет"} onClose={() => setModal(null)}>
@@ -531,7 +548,6 @@ const Tickets = () => {
   );
 };
 
-// ─── NAV + APP ────────────────────────────────────────────────────────────────
 const NAV = [
   { id: "genres",   label: "Жанры",      icon: "tag" },
   { id: "halls",    label: "Залы",        icon: "building" },
@@ -550,6 +566,7 @@ export default function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body, #root { width: 100%; min-height: 100vh; }
         body { background: #060a10; color: #e2e8f0; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -561,7 +578,7 @@ export default function App() {
         @keyframes modalIn { from { opacity:0; transform:translateY(10px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
       `}</style>
 
-      <div style={{ display: "flex", minHeight: "100vh" }}>
+      <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
 
         {/* Sidebar */}
         <aside style={{
@@ -579,7 +596,6 @@ export default function App() {
               </div>
               <div>
                 <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#f8fafc", letterSpacing: "-0.02em" }}>Cinema</div>
-                <div style={{ fontSize: 9.5, color: "#1e3050", letterSpacing: "0.14em", fontWeight: 700, marginTop: 1 }}>ADMIN PANEL</div>
               </div>
             </div>
           </div>
@@ -614,14 +630,15 @@ export default function App() {
           </nav>
 
           <div style={{ padding: "14px 20px", borderTop: "1px solid #0a1525" }}>
-            <div style={{ fontSize: 10.5, color: "#152030", fontFamily: "monospace", letterSpacing: "0.02em" }}>localhost:8080</div>
           </div>
         </aside>
 
         {/* Main */}
         <main style={{
-          flex: 1, minWidth: 0, padding: "36px 40px",
+          flex: 1, minWidth: 0, width: 0, padding: "24px 28px",
           background: "radial-gradient(ellipse 70% 35% at 50% 0%,#091828 0%,#060a10 55%)",
+          overflow: "hidden",
+          maxWidth: 1100,
         }}>
           {pages[active]}
         </main>
