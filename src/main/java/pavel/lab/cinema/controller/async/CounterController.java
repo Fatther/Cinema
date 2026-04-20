@@ -19,7 +19,7 @@ public class CounterController {
         try {
             counterService.raceDemonstration();
             return ResponseEntity.ok("Демонстрация завершена, результат в логах");
-        } catch (InterruptedException _) {
+        } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return ResponseEntity.internalServerError().body("Ошибка при выполнении теста");
         }

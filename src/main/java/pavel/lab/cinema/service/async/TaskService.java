@@ -25,7 +25,7 @@ public class TaskService {
             taskStatus.put(taskId, "FINISHED");
             message = "Задача " + taskId + " успешно завершена";
             log.info(message);
-        } catch (InterruptedException _) {
+        } catch (InterruptedException e) {
             taskStatus.put(taskId, "ERROR");
             message = "Ошибка при выполнении задачи " + taskId;
             log.info(message);
