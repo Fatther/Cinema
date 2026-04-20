@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API = "http://localhost:8080";
+const API = "";
 
-// ─── API helpers (не трогаем) ────────────────────────────────────────────────
 const api = {
   get: (url) => fetch(`${API}${url}`).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
   post: (url, body) => fetch(`${API}${url}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
@@ -10,7 +9,6 @@ const api = {
   del: (url) => fetch(`${API}${url}`, { method: "DELETE" }).then(r => { if (!r.ok && r.status !== 204) throw new Error(r.statusText); }),
 };
 
-// ─── Icons ───────────────────────────────────────────────────────────────────
 const Icon = ({ name, size = 16 }) => {
   const icons = {
     film: <><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></>,
@@ -35,7 +33,6 @@ const Icon = ({ name, size = 16 }) => {
   );
 };
 
-// ─── Toast ───────────────────────────────────────────────────────────────────
 let toastFn = null;
 const Toast = () => {
   const [toasts, setToasts] = useState([]);
@@ -66,7 +63,6 @@ const Toast = () => {
 };
 const toast = (msg, type) => toastFn?.(msg, type);
 
-// ─── Modal ───────────────────────────────────────────────────────────────────
 const Modal = ({ title, onClose, children }) => (
   <div style={{
     position: "fixed", inset: 0,
@@ -118,7 +114,6 @@ const btnStyle = (variant = "primary") => ({
   whiteSpace: "nowrap",
 });
 
-// ─── Badge ────────────────────────────────────────────────────────────────────
 const Badge = ({ label }) => (
   <span style={{
     background: "#0a1e38", color: "#60a5fa", border: "1px solid #163052",
@@ -127,7 +122,6 @@ const Badge = ({ label }) => (
   }}>{label}</span>
 );
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
 const Pagination = ({ meta, onPage }) => {
   if (!meta || meta.totalPage <= 1) return null;
   return (
@@ -141,10 +135,6 @@ const Pagination = ({ meta, onPage }) => {
   );
 };
 
-// ─── Table ────────────────────────────────────────────────────────────────────
-// Каждая колонка обязана иметь width. Последняя колонка без width получает "auto"
-// но только если она одна такая — поэтому в cols всегда указываем width явно.
-// th и td имеют одинаковый padding и textAlign: center → шапка всегда над значением.
 
 const CELL = { padding: "14px 20px", textAlign: "center", verticalAlign: "middle" };
 
@@ -244,7 +234,6 @@ const Section = ({ title, icon, onAdd, children }) => (
   </div>
 );
 
-// ─── SearchBar ────────────────────────────────────────────────────────────────
 const SearchBar = ({ value, onChange, onSearch, onReset, placeholder }) => (
   <div style={{ display: "flex", gap: 8, padding: "16px 16px 0" }}>
     <div style={{ position: "relative", flex: 1, maxWidth: 300 }}>
@@ -347,7 +336,7 @@ const Movies = () => {
   const [genres, setGenres] = useState([]);
   const [form, setForm] = useState({ title: "", duration: "", genreIds: [] });
   const load = useCallback(() =>
-    api.get(`/movies?page=${page}&size=5`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
+    api.get(`/movies?page=${page}&size=10`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.get("/genres").then(setGenres).catch(() => {}); }, []);
   const openCreate = () => { setForm({ title: "", duration: "", genreIds: [] }); setModal({ mode: "create" }); };
@@ -406,7 +395,7 @@ const Sessions = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ startTime: "", movieId: "", hallId: "" });
   const load = useCallback(() => {
-    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=5` : `/sessions?page=${page}&size=5`;
+    const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=10` : `/sessions?page=${page}&size=10`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки сеансов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -505,7 +494,7 @@ const Tickets = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ sessionId: "", visitorId: "", seatNumber: "" });
   const load = useCallback(() => {
-    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=5` : `/tickets?page=${page}&size=5`;
+    const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=10` : `/tickets?page=${page}&size=10`;
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error"));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
@@ -561,7 +550,6 @@ const Tickets = () => {
   );
 };
 
-// ─── NAV + APP ────────────────────────────────────────────────────────────────
 const NAV = [
   { id: "genres",   label: "Жанры",      icon: "tag" },
   { id: "halls",    label: "Залы",        icon: "building" },
@@ -610,7 +598,6 @@ export default function App() {
               </div>
               <div>
                 <div style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 17, color: "#f8fafc", letterSpacing: "-0.02em" }}>Cinema</div>
-                <div style={{ fontSize: 9.5, color: "#1e3050", letterSpacing: "0.14em", fontWeight: 700, marginTop: 1 }}>ADMIN PANEL</div>
               </div>
             </div>
           </div>
@@ -645,7 +632,6 @@ export default function App() {
           </nav>
 
           <div style={{ padding: "14px 20px", borderTop: "1px solid #0a1525" }}>
-            <div style={{ fontSize: 10.5, color: "#152030", fontFamily: "monospace", letterSpacing: "0.02em" }}>localhost:8080</div>
           </div>
         </aside>
 
