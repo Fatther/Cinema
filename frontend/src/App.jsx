@@ -88,7 +88,6 @@ const Modal = ({ title, onClose, children }) => (
   </div>
 );
 
-// ─── Form helpers ─────────────────────────────────────────────────────────────
 const Field = ({ label, children }) => (
   <div style={{ marginBottom: 18 }}>
     <label style={{ display: "block", fontSize: 11, color: "#3b5470", marginBottom: 7, textTransform: "uppercase", letterSpacing: "0.09em", fontWeight: 700 }}>{label}</label>
@@ -216,7 +215,6 @@ const Table = ({ cols, rows, onEdit, onDelete }) => (
   </div>
 );
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
 const Section = ({ title, icon, onAdd, children }) => (
   <div>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
