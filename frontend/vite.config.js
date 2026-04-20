@@ -13,9 +13,5 @@ export default defineConfig({
             '/visitors': 'http://localhost:8080',
             '/tickets': 'http://localhost:8080',
         }
-    },
-    build: {
-        outDir: 'X:\Java\cinema\src\main\resources\static',
-        emptyOutDir: true,
     }
 })
