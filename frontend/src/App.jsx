@@ -276,7 +276,7 @@ const Genres = () => {
   };
   return (
     <Section title="Жанры" icon="tag" onAdd={openCreate}>
-      <Table cols={[{ key: "id", label: "ID", width: 80 }, { key: "name", label: "Название", width: "100%" }]} rows={data} onEdit={openEdit} onDelete={del} />
+      <Table cols={[{ key: "name", label: "Название", width: "100%" }]} rows={data} onEdit={openEdit} onDelete={del} />
       {modal && (<Modal title={modal.mode === "create" ? "Новый жанр" : "Редактировать жанр"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.name} onChange={e => setForm({ name: e.target.value })} placeholder="Боевик" maxLength={20} /></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
@@ -307,7 +307,6 @@ const Halls = () => {
   return (
     <Section title="Залы" icon="building" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 80 },
         { key: "name", label: "Название", width: "100%" },
         { key: "price", label: "Цена", width: 120, render: r => <span style={{ color: "#f1f5f9", fontWeight: 700 }}>{r.price} р.</span> },
         { key: "seatAmount", label: "Мест", width: 100 },
@@ -353,7 +352,6 @@ const Movies = () => {
   return (
     <Section title="Фильмы" icon="film" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 80 },
         { key: "title", label: "Название", width: 240 },
         { key: "duration", label: "Длительность", width: 140, render: r => <span>{r.duration} мин</span> },
         { key: "genres", label: "Жанры", width: "100%", render: r => <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>{(r.genres || []).map(g => <Badge key={g} label={g} />)}</div> },
@@ -419,7 +417,6 @@ const Sessions = () => {
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по фильму..." />
       <CardDivider />
       <Table cols={[
-        { key: "id", label: "ID", width: 80 },
         { key: "startTime", label: "Начало", width: 120, render: r => {
           const dt = r.startTime?.replace("T", " ").slice(0, 16) ?? "";
           const [date, time] = dt.split(" ");
@@ -464,7 +461,6 @@ const Visitors = () => {
   return (
     <Section title="Посетители" icon="user" onAdd={openCreate}>
       <Table cols={[
-        { key: "id", label: "ID", width: 80 },
         { key: "name", label: "Имя", width: 200 },
         { key: "email", label: "Email", width: "100%" },
       ]} rows={data} onEdit={openEdit} onDelete={del} />
@@ -517,7 +513,6 @@ const Tickets = () => {
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по посетителю..." />
       <CardDivider />
       <Table cols={[
-        { key: "id", label: "ID", width: 80 },
         { key: "seatNumber", label: "Место", width: 100 },
         { key: "session", label: "Фильм", width: 220, render: r => r.session
           ? <span style={{ color: "#cbd5e1" }}>{r.session.movieTitle}</span>
