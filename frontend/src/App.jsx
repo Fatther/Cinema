@@ -143,7 +143,7 @@ const Table = ({ cols, rows, onEdit, onDelete }) => (
       width: "100%",
       borderCollapse: "collapse",
       fontSize: 15,
-      tableLayout: "fixed",   // ← обязательно, иначе браузер сам раздаёт ширины
+      tableLayout: "fixed",
     }}>
       <colgroup>
         {cols.map(c => <col key={c.key} style={{ width: c.width }} />)}
@@ -254,10 +254,6 @@ const ModalActions = ({ onCancel, onSave }) => (
     <button style={btnStyle()} onClick={onSave}>Сохранить</button>
   </div>
 );
-
-// ══════════════════════════════════════════════════════════════════════════════
-// SECTIONS — серверная логика без изменений
-// ══════════════════════════════════════════════════════════════════════════════
 
 const Genres = () => {
   const [data, setData] = useState([]);
