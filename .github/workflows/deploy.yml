@@ -50,5 +50,4 @@ jobs:
         run: sleep 60
 
       - name: Health check
-        run: |
-          curl --fail https://cinema-production-8a93.up.railway.app/actuator/health
+        run: curl --fail https://cinema-production-8a93.up.railway.app/actuator/health
