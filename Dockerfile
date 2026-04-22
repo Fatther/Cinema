@@ -1,17 +1,11 @@
-FROM node:20-alpine AS frontend
-WORKDIR /app
-COPY frontend/package*.json ./
-RUN npm install
-COPY frontend/ .
-RUN npm run build
 
-FROM gradle:8-jdk21 AS backend
+FROM gradle:8-jdk21 AS build
 WORKDIR /app
 COPY . .
-COPY --from=frontend /app/dist src/main/resources/static
 RUN gradle bootJar -x test --no-daemon
-
+ 
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=backend /app/build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
