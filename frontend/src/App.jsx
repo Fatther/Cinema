@@ -622,7 +622,7 @@ export default function App() {
                 {/* Main */}
                 <main style={{
                     flex: 1, minWidth: 0, width: 0, padding: "32px 40px",
-                    background: "radial-gradient(circle at 50% 0%, #1e1b4b 0%, #010409 70%)",
+                    background: "radial-gradient(circle at 50% 0%св, #1e1b4b 0%, #010409 70%)",
                     overflow: "hidden",
                 }}>
                     {pages[active]}
