@@ -20,7 +20,7 @@ public class TicketMapper {
                 .id(entity.getId())
                 .seatNumber(entity.getSeatNumber())
                 .session(sessionMapper.toDto(entity.getSession()))
-                .visitorEmail(entity.getVisitor().getEmail())
+                .visitorEmail(entity.getVisitor().getName() + " (" + entity.getVisitor().getEmail() + ")")
                 .build();
     }
 
