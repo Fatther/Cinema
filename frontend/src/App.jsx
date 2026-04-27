@@ -121,7 +121,6 @@ const Badge = ({ label }) => (
   }}>{label}</span>
 );
 
-// ─── Pagination ───────────────────────────────────────────────────────────────
 const Pagination = ({ meta, onPage }) => {
   if (!meta || meta.totalPage <= 1) return null;
   return (
@@ -212,8 +211,8 @@ const Section = ({ title, icon, onAdd, children }) => (
   <div>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "8px 9px", display: "flex" }}>
-          <span style={{ color: "#2563eb" }}><Icon name={icon} size={17} /></span>
+        <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "8px 9px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name={icon} size={17} /></span>
         </div>
         <h2 style={{ margin: 0, fontSize: 26, fontFamily: "'Syne', sans-serif", fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>{title}</h2>
       </div>
