@@ -34,30 +34,88 @@ const Icon = ({ name, size = 16 }) => {
 };
 
 let toastFn = null;
+
+const TOAST_ICONS = {
+  success: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" /><polyline points="9 12 11.5 14.5 16 9.5" />
+    </svg>
+  ),
+  error: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" />
+    </svg>
+  ),
+  info: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  ),
+  buy: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"/>
+    </svg>
+  ),
+  delete: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+    </svg>
+  ),
+};
+
+const TOAST_STYLES = {
+  success: { bg: "#f0fdf4", border: "#86efac", color: "#15803d", iconBg: "#dcfce7" },
+  error:   { bg: "#fff1f1", border: "#fca5a5", color: "#b91c1c", iconBg: "#fee2e2" },
+  info:    { bg: "#eff6ff", border: "#bfdbfe", color: "#1d4ed8", iconBg: "#dbeafe" },
+  buy:     { bg: "#f0fdf4", border: "#6ee7b7", color: "#065f46", iconBg: "#d1fae5" },
+  delete:  { bg: "#fff7ed", border: "#fed7aa", color: "#c2410c", iconBg: "#ffedd5" },
+};
+
 const Toast = () => {
   const [toasts, setToasts] = useState([]);
   useEffect(() => {
     toastFn = (msg, type = "success") => {
       const id = Date.now();
       setToasts(p => [...p, { id, msg, type }]);
-      setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3000);
+      setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3500);
     };
   }, []);
   return (
-    <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 9999, display: "flex", flexDirection: "column", gap: 10 }}>
-      {toasts.map(t => (
-        <div key={t.id} style={{
-          background: t.type === "error" ? "#fff1f1" : "#f0fdf4",
-          border: `1px solid ${t.type === "error" ? "#fca5a5" : "#86efac"}`,
-          color: t.type === "error" ? "#b91c1c" : "#15803d",
-          padding: "12px 18px", borderRadius: 10, fontSize: 13, fontFamily: "inherit",
-          animation: "toastIn 0.25s cubic-bezier(.21,1.02,.73,1) forwards",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
-          maxWidth: 340, display: "flex", alignItems: "center", gap: 10,
-        }}>
-          <span>{t.type === "error" ? "✕" : "✓"}</span>{t.msg}
-        </div>
-      ))}
+    <div style={{ position: "fixed", bottom: 28, right: 28, zIndex: 9999, display: "flex", flexDirection: "column", gap: 10, pointerEvents: "none" }}>
+      {toasts.map(t => {
+        const s = TOAST_STYLES[t.type] ?? TOAST_STYLES.success;
+        return (
+          <div key={t.id} style={{
+            background: s.bg,
+            border: `1px solid ${s.border}`,
+            color: s.color,
+            padding: "12px 16px 12px 12px",
+            borderRadius: 13,
+            fontSize: 13,
+            fontFamily: "inherit",
+            fontWeight: 500,
+            animation: "toastIn 0.3s cubic-bezier(.21,1.02,.73,1) forwards",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+            maxWidth: 360,
+            minWidth: 220,
+            display: "flex",
+            alignItems: "center",
+            gap: 11,
+            letterSpacing: "-0.01em",
+          }}>
+            <div style={{
+              background: s.iconBg,
+              borderRadius: 8,
+              width: 32, height: 32,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              {TOAST_ICONS[t.type] ?? TOAST_ICONS.success}
+            </div>
+            <span style={{ lineHeight: 1.4 }}>{t.msg}</span>
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -271,12 +329,12 @@ const Genres = () => {
     try {
       if (modal.mode === "create") await api.post("/genres/post", form);
       else await api.put(`/genres/update/${modal.item.id}`, form);
-      toast(modal.mode === "create" ? "Жанр создан" : "Жанр обновлён"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? `Жанр «${form.name}» добавлен` : `Жанр «${form.name}» обновлён`); setModal(null); load();
+    } catch { toast("Ошибка сохранения жанра", "error"); }
   };
   const del = async (item) => {
     if (!confirm(`Удалить жанр «${item.name}»?`)) return;
-    try { await api.del(`/genres/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/genres/delete/${item.id}`); toast(`Жанр «${item.name}» удалён`, "delete"); load(); } catch { toast("Ошибка удаления жанра", "error"); }
   };
   return (
     <Section title="Жанры" icon="tag" onAdd={openCreate}>
@@ -302,12 +360,12 @@ const Halls = () => {
     try {
       const body = { name: form.name, price: Number(form.price), seatAmount: Number(form.seatAmount) };
       if (modal.mode === "create") await api.post("/halls/post", body); else await api.put(`/halls/update/${modal.item.id}`, body);
-      toast("Сохранено"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? `Зал «${form.name}» добавлен` : `Зал «${form.name}» обновлён`); setModal(null); load();
+    } catch { toast("Ошибка сохранения зала", "error"); }
   };
   const del = async (item) => {
     if (!confirm(`Удалить зал «${item.name}»?`)) return;
-    try { await api.del(`/halls/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/halls/delete/${item.id}`); toast(`Зал «${item.name}» удалён`, "delete"); load(); } catch { toast("Ошибка удаления зала", "error"); }
   };
   return (
     <Section title="Залы" icon="building" onAdd={openCreate}>
@@ -348,12 +406,12 @@ const Movies = () => {
     try {
       const body = { title: form.title, duration: Number(form.duration), genreIds: form.genreIds };
       if (modal.mode === "create") await api.post("/movies/post", body); else await api.put(`/movies/update/${modal.item.id}`, body);
-      toast("Сохранено"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? `Фильм «${form.title}» добавлен` : `Фильм «${form.title}» обновлён`); setModal(null); load();
+    } catch { toast("Ошибка сохранения фильма", "error"); }
   };
   const del = async (item) => {
     if (!confirm(`Удалить фильм «${item.title}»?`)) return;
-    try { await api.del(`/movies/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/movies/delete/${item.id}`); toast(`Фильм «${item.title}» удалён`, "delete"); load(); } catch { toast("Ошибка удаления фильма", "error"); }
   };
   return (
     <Section title="Фильмы" icon="film" onAdd={openCreate}>
@@ -421,19 +479,19 @@ const Sessions = () => {
     try {
       const body = { startTime: form.startTime + ":00", movieId: Number(form.movieId), hallId: Number(form.hallId) };
       if (modal.mode === "create") await api.post("/sessions/post", body); else await api.put(`/sessions/update/${modal.item.id}`, body);
-      toast("Сохранено"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? "Сеанс добавлен" : "Сеанс обновлён"); setModal(null); load();
+    } catch { toast("Ошибка сохранения сеанса", "error"); }
   };
   const submitBuy = async () => {
     try {
       const body = { sessionId: Number(buyModal.id), visitorId: Number(buyForm.visitorId), seatNumber: Number(buyForm.seatNumber) };
       await api.post("/tickets/post", body);
-      toast("Билет куплен"); setBuyModal(null);
+      toast(`Билет на «${buyModal.movieTitle}» куплен`, "buy"); setBuyModal(null);
     } catch { toast("Ошибка покупки билета", "error"); }
   };
   const del = async (item) => {
     if (!confirm("Удалить сеанс?")) return;
-    try { await api.del(`/sessions/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/sessions/delete/${item.id}`); toast("Сеанс удалён", "delete"); load(); } catch { toast("Ошибка удаления сеанса", "error"); }
   };
   const handleSearch = () => { setSearch(searchInput); setPage(0); };
   return (
@@ -546,12 +604,12 @@ const Visitors = () => {
   const submit = async () => {
     try {
       if (modal.mode === "create") await api.post("/visitors/post", form); else await api.put(`/visitors/update/${modal.item.id}`, form);
-      toast("Сохранено"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? `Посетитель «${form.name}» добавлен` : `Посетитель «${form.name}» обновлён`); setModal(null); load();
+    } catch { toast("Ошибка сохранения посетителя", "error"); }
   };
   const del = async (item) => {
     if (!confirm(`Удалить посетителя «${item.name}»?`)) return;
-    try { await api.del(`/visitors/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/visitors/delete/${item.id}`); toast(`Посетитель «${item.name}» удалён`, "delete"); load(); } catch { toast("Ошибка удаления посетителя", "error"); }
   };
   return (
     <Section title="Посетители" icon="user" onAdd={openCreate}>
@@ -596,12 +654,12 @@ const Tickets = () => {
     try {
       const body = { sessionId: Number(form.sessionId), visitorId: Number(form.visitorId), seatNumber: Number(form.seatNumber) };
       if (modal.mode === "create") await api.post("/tickets/post", body); else await api.put(`/tickets/update/${modal.item.id}`, body);
-      toast("Сохранено"); setModal(null); load();
-    } catch { toast("Ошибка сохранения", "error"); }
+      toast(modal.mode === "create" ? "Билет добавлен" : "Билет обновлён"); setModal(null); load();
+    } catch { toast("Ошибка сохранения билета", "error"); }
   };
   const del = async (item) => {
     if (!confirm("Удалить билет?")) return;
-    try { await api.del(`/tickets/delete/${item.id}`); toast("Удалено"); load(); } catch { toast("Ошибка удаления", "error"); }
+    try { await api.del(`/tickets/delete/${item.id}`); toast("Билет удалён", "delete"); load(); } catch { toast("Ошибка удаления билета", "error"); }
   };
   const handleSearch = () => { setSearch(searchInput); setPage(0); };
   return (
@@ -674,7 +732,7 @@ export default function App() {
           filter: none;
         }
         input[type="number"] { -moz-appearance: auto; }
-        @keyframes toastIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
+        @keyframes toastIn { from { opacity:0; transform:translateX(24px) scale(0.96); } to { opacity:1; transform:translateX(0) scale(1); } }
         @keyframes modalIn { from { opacity:0; transform:translateY(10px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
