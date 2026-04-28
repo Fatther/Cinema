@@ -63,6 +63,17 @@ const Toast = () => {
 };
 const toast = (msg, type) => toastFn?.(msg, type);
 
+const Loader = () => (
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "56px 0" }}>
+    <div style={{
+      width: 36, height: 36, borderRadius: "50%",
+      border: "3px solid #e2e8f0",
+      borderTopColor: "#3b82f6",
+      animation: "spin 0.7s linear infinite",
+    }} />
+  </div>
+);
+
 const Modal = ({ title, onClose, children }) => (
   <div style={{
     position: "fixed", inset: 0,
@@ -249,9 +260,10 @@ const ModalActions = ({ onCancel, onSave }) => (
 
 const Genres = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ name: "" });
-  const load = useCallback(() => api.get("/genres").then(setData).catch(() => toast("Ошибка загрузки жанров", "error")), []);
+  const load = useCallback(() => { setLoading(true); api.get("/genres").then(setData).catch(() => toast("Ошибка загрузки жанров", "error")).finally(() => setLoading(false)); }, []);
   useEffect(() => { load(); }, [load]);
   const openCreate = () => { setForm({ name: "" }); setModal({ mode: "create" }); };
   const openEdit = (item) => { setForm({ name: item.name }); setModal({ mode: "edit", item }); };
@@ -268,7 +280,7 @@ const Genres = () => {
   };
   return (
     <Section title="Жанры" icon="tag" onAdd={openCreate}>
-      <Table cols={[{ key: "name", label: "Название", width: "100%" }]} rows={data} onEdit={openEdit} onDelete={del} />
+      {loading ? <Loader /> : <Table cols={[{ key: "name", label: "Название", width: "100%" }]} rows={data} onEdit={openEdit} onDelete={del} />}
       {modal && (<Modal title={modal.mode === "create" ? "Новый жанр" : "Редактировать жанр"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.name} onChange={e => setForm({ name: e.target.value })} placeholder="Боевик" maxLength={20} /></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
@@ -279,9 +291,10 @@ const Genres = () => {
 
 const Halls = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ name: "", price: "", seatAmount: "" });
-  const load = useCallback(() => api.get("/halls").then(setData).catch(() => toast("Ошибка загрузки залов", "error")), []);
+  const load = useCallback(() => { setLoading(true); api.get("/halls").then(setData).catch(() => toast("Ошибка загрузки залов", "error")).finally(() => setLoading(false)); }, []);
   useEffect(() => { load(); }, [load]);
   const openCreate = () => { setForm({ name: "", price: "", seatAmount: "" }); setModal({ mode: "create" }); };
   const openEdit = (item) => { setForm({ name: item.name, price: item.price, seatAmount: item.seatAmount }); setModal({ mode: "edit", item }); };
@@ -298,11 +311,11 @@ const Halls = () => {
   };
   return (
     <Section title="Залы" icon="building" onAdd={openCreate}>
-      <Table cols={[
+      {loading ? <Loader /> : <Table cols={[
         { key: "name", label: "Название", width: "100%" },
         { key: "price", label: "Цена", width: 120, render: r => <span style={{ color: "#0f172a", fontWeight: 700 }}>{r.price} р.</span> },
         { key: "seatAmount", label: "Мест", width: 100 },
-      ]} rows={data} onEdit={openEdit} onDelete={del} />
+      ]} rows={data} onEdit={openEdit} onDelete={del} />}
       {modal && (<Modal title={modal.mode === "create" ? "Новый зал" : "Редактировать зал"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Зал 1" maxLength={20} /></Field>
         <Field label="Цена (р.)"><input style={inputStyle} type="number" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} placeholder="350" /></Field>
@@ -317,11 +330,12 @@ const Movies = () => {
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState(null);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [genres, setGenres] = useState([]);
   const [form, setForm] = useState({ title: "", duration: "", genreIds: [] });
-  const load = useCallback(() =>
-    api.get(`/movies?page=${page}&size=10`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")), [page]);
+  const load = useCallback(() => { setLoading(true);
+    api.get(`/movies?page=${page}&size=10`).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки фильмов", "error")).finally(() => setLoading(false)); }, [page]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.get("/genres").then(setGenres).catch(() => {}); }, []);
   const openCreate = () => { setForm({ title: "", duration: "", genreIds: [] }); setModal({ mode: "create" }); };
@@ -343,12 +357,14 @@ const Movies = () => {
   };
   return (
     <Section title="Фильмы" icon="film" onAdd={openCreate}>
-      <Table cols={[
-        { key: "title", label: "Название", width: 240 },
-        { key: "duration", label: "Длительность", width: 140, render: r => <span style={{ color: "#64748b" }}>{r.duration} мин</span> },
-        { key: "genres", label: "Жанры", width: "100%", render: r => <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>{(r.genres || []).map(g => <Badge key={g} label={g} />)}</div> },
-      ]} rows={data} onEdit={openEdit} onDelete={del} />
-      <Pagination meta={meta} onPage={setPage} />
+      {loading ? <Loader /> : <>
+        <Table cols={[
+          { key: "title", label: "Название", width: 240 },
+          { key: "duration", label: "Длительность", width: 140, render: r => <span style={{ color: "#64748b" }}>{r.duration} мин</span> },
+          { key: "genres", label: "Жанры", width: "100%", render: r => <div style={{ display: "flex", flexWrap: "wrap", gap: 3, justifyContent: "center" }}>{(r.genres || []).map(g => <Badge key={g} label={g} />)}</div> },
+        ]} rows={data} onEdit={openEdit} onDelete={del} />
+        <Pagination meta={meta} onPage={setPage} />
+      </>}
       {modal && (<Modal title={modal.mode === "create" ? "Новый фильм" : "Редактировать фильм"} onClose={() => setModal(null)}>
         <Field label="Название"><input style={inputStyle} value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} placeholder="Название фильма" maxLength={50} /></Field>
         <Field label="Длительность (мин)"><input style={inputStyle} type="number" value={form.duration} onChange={e => setForm(p => ({ ...p, duration: e.target.value }))} placeholder="120" /></Field>
@@ -372,18 +388,27 @@ const Sessions = () => {
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState(null);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
+  const [buyModal, setBuyModal] = useState(null);
   const [movies, setMovies] = useState([]);
   const [halls, setHalls] = useState([]);
+  const [visitors, setVisitors] = useState([]);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ startTime: "", movieId: "", hallId: "" });
+  const [buyForm, setBuyForm] = useState({ visitorId: "", seatNumber: "" });
   const load = useCallback(() => {
+    setLoading(true);
     const url = search ? `/sessions/search?title=${encodeURIComponent(search)}&page=${page}&size=10` : `/sessions?page=${page}&size=10`;
-    api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки сеансов", "error"));
+    api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки сеансов", "error")).finally(() => setLoading(false));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { api.get("/movies?size=100").then(r => setMovies(r.content)).catch(() => {}); api.get("/halls").then(setHalls).catch(() => {}); }, []);
+  useEffect(() => {
+    api.get("/movies?size=100").then(r => setMovies(r.content)).catch(() => {});
+    api.get("/halls").then(setHalls).catch(() => {});
+    api.get("/visitors").then(setVisitors).catch(() => {});
+  }, []);
   const openCreate = () => { setForm({ startTime: "", movieId: "", hallId: "" }); setModal({ mode: "create" }); };
   const openEdit = (item) => {
     const movie = movies.find(m => m.title === item.movieTitle);
@@ -391,12 +416,20 @@ const Sessions = () => {
     const dt = item.startTime ? item.startTime.replace(" ", "T").slice(0, 16) : "";
     setForm({ startTime: dt, movieId: movie?.id ?? "", hallId: hall?.id ?? "" }); setModal({ mode: "edit", item });
   };
+  const openBuy = (item) => { setBuyForm({ visitorId: "", seatNumber: "" }); setBuyModal(item); };
   const submit = async () => {
     try {
       const body = { startTime: form.startTime + ":00", movieId: Number(form.movieId), hallId: Number(form.hallId) };
       if (modal.mode === "create") await api.post("/sessions/post", body); else await api.put(`/sessions/update/${modal.item.id}`, body);
       toast("Сохранено"); setModal(null); load();
     } catch { toast("Ошибка сохранения", "error"); }
+  };
+  const submitBuy = async () => {
+    try {
+      const body = { sessionId: Number(buyModal.id), visitorId: Number(buyForm.visitorId), seatNumber: Number(buyForm.seatNumber) };
+      await api.post("/tickets/post", body);
+      toast("Билет куплен"); setBuyModal(null);
+    } catch { toast("Ошибка покупки билета", "error"); }
   };
   const del = async (item) => {
     if (!confirm("Удалить сеанс?")) return;
@@ -408,25 +441,94 @@ const Sessions = () => {
       <SearchBar value={searchInput} onChange={setSearchInput} onSearch={handleSearch}
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по фильму..." />
       <CardDivider />
-      <Table cols={[
-        { key: "startTime", label: "Начало", width: 120, render: r => {
-          const dt = r.startTime?.replace("T", " ").slice(0, 16) ?? "";
-          const [date, time] = dt.split(" ");
-          return <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
-            <div style={{ color: "#0f172a", fontWeight: 600 }}>{time}</div>
-            <div style={{ color: "#94a3b8", fontSize: 11 }}>{date}</div>
-          </div>;
-        }},
-        { key: "movieTitle", label: "Фильм", width: "100%" },
-        { key: "hallName", label: "Зал", width: 140 },
-        { key: "price", label: "Цена", width: 100, render: r => <span style={{ color: "#0f172a", fontWeight: 700 }}>{r.price} р.</span> },
-      ]} rows={data} onEdit={openEdit} onDelete={del} />
-      <Pagination meta={meta} onPage={setPage} />
+      {loading ? <Loader /> : <>
+        <div style={{ width: "100%", overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 15, tableLayout: "fixed" }}>
+            <colgroup>
+              <col style={{ width: 120 }} />
+              <col style={{ width: "100%" }} />
+              <col style={{ width: 140 }} />
+              <col style={{ width: 100 }} />
+              <col style={{ width: 130 }} />
+              <col style={{ width: 100 }} />
+            </colgroup>
+            <thead>
+              <tr style={{ background: "#f8fafc" }}>
+                {[
+                  { label: "Начало" }, { label: "Фильм" }, { label: "Зал" },
+                  { label: "Цена" }, { label: "Купить билет" }, { label: "Действия" }
+                ].map(c => (
+                  <th key={c.label} style={{ ...CELL, color: "#94a3b8", fontWeight: 700, fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", borderBottom: "1px solid #e2e8f0", whiteSpace: "nowrap" }}>{c.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.length === 0 && (
+                <tr><td colSpan={6} style={{ padding: "48px 16px", textAlign: "center", color: "#cbd5e1", fontSize: 13 }}>— нет данных —</td></tr>
+              )}
+              {data.map((row, i) => {
+                const dt = row.startTime?.replace("T", " ").slice(0, 16) ?? "";
+                const [date, time] = dt.split(" ");
+                return (
+                  <tr key={row.id ?? i} style={{ borderBottom: "1px solid #f1f5f9", transition: "background 0.1s" }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#f8fafc"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <td style={{ ...CELL, color: "#475569" }}>
+                      <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
+                        <div style={{ color: "#0f172a", fontWeight: 600 }}>{time}</div>
+                        <div style={{ color: "#94a3b8", fontSize: 11 }}>{date}</div>
+                      </div>
+                    </td>
+                    <td style={{ ...CELL, color: "#475569", overflow: "hidden" }}>
+                      <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{row.movieTitle ?? "—"}</span>
+                    </td>
+                    <td style={{ ...CELL, color: "#475569" }}>{row.hallName ?? "—"}</td>
+                    <td style={{ ...CELL }}><span style={{ color: "#0f172a", fontWeight: 700 }}>{row.price} р.</span></td>
+                    <td style={{ ...CELL }}>
+                      <button onClick={() => openBuy(row)}
+                        style={{ background: "linear-gradient(135deg,#059669,#10b981)", border: "none", borderRadius: 8, color: "#fff", cursor: "pointer", padding: "7px 13px", fontSize: 12, fontWeight: 600, fontFamily: "inherit", display: "inline-flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}
+                        onMouseEnter={e => e.currentTarget.style.opacity = "0.88"}
+                        onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+                      >
+                        <Icon name="ticket" size={12} />Купить
+                      </button>
+                    </td>
+                    <td style={{ ...CELL }}>
+                      <div style={{ display: "inline-flex", gap: 6 }}>
+                        <button onClick={() => openEdit(row)} title="Редактировать"
+                          style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 7, color: "#2563eb", cursor: "pointer", padding: "6px 8px", display: "flex" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "#dbeafe"}
+                          onMouseLeave={e => e.currentTarget.style.background = "#eff6ff"}
+                        ><Icon name="edit" size={13} /></button>
+                        <button onClick={() => del(row)} title="Удалить"
+                          style={{ background: "#fff1f2", border: "1px solid #fecdd3", borderRadius: 7, color: "#e11d48", cursor: "pointer", padding: "6px 8px", display: "flex" }}
+                          onMouseEnter={e => e.currentTarget.style.background = "#ffe4e6"}
+                          onMouseLeave={e => e.currentTarget.style.background = "#fff1f2"}
+                        ><Icon name="trash" size={13} /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <Pagination meta={meta} onPage={setPage} />
+      </>}
       {modal && (<Modal title={modal.mode === "create" ? "Новый сеанс" : "Редактировать сеанс"} onClose={() => setModal(null)}>
         <Field label="Дата и время"><input style={inputStyle} type="datetime-local" value={form.startTime} onChange={e => setForm(p => ({ ...p, startTime: e.target.value }))} /></Field>
         <Field label="Фильм"><select style={inputStyle} value={form.movieId} onChange={e => setForm(p => ({ ...p, movieId: e.target.value }))}><option value="">— выбрать —</option>{movies.map(m => <option key={m.id} value={m.id}>{m.title}</option>)}</select></Field>
         <Field label="Зал"><select style={inputStyle} value={form.hallId} onChange={e => setForm(p => ({ ...p, hallId: e.target.value }))}><option value="">— выбрать —</option>{halls.map(h => <option key={h.id} value={h.id}>{h.name} ({h.price} р.)</option>)}</select></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
+      </Modal>)}
+      {buyModal && (<Modal title={`Купить билет — ${buyModal.movieTitle}`} onClose={() => setBuyModal(null)}>
+        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9, padding: "10px 14px", marginBottom: 18, fontSize: 13, color: "#15803d" }}>
+          {buyModal.startTime?.replace("T", " ").slice(0, 16)} · {buyModal.hallName} · {buyModal.price} р.
+        </div>
+        <Field label="Посетитель"><select style={inputStyle} value={buyForm.visitorId} onChange={e => setBuyForm(p => ({ ...p, visitorId: e.target.value }))}><option value="">— выбрать —</option>{visitors.map(v => <option key={v.id} value={v.id}>{v.name} ({v.email})</option>)}</select></Field>
+        <Field label="Номер места"><input style={inputStyle} type="number" value={buyForm.seatNumber} onChange={e => setBuyForm(p => ({ ...p, seatNumber: e.target.value }))} placeholder="1" /></Field>
+        <ModalActions onCancel={() => setBuyModal(null)} onSave={submitBuy} />
       </Modal>)}
     </Section>
   );
@@ -434,9 +536,10 @@ const Sessions = () => {
 
 const Visitors = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [form, setForm] = useState({ name: "", email: "" });
-  const load = useCallback(() => api.get("/visitors").then(setData).catch(() => toast("Ошибка загрузки посетителей", "error")), []);
+  const load = useCallback(() => { setLoading(true); api.get("/visitors").then(setData).catch(() => toast("Ошибка загрузки посетителей", "error")).finally(() => setLoading(false)); }, []);
   useEffect(() => { load(); }, [load]);
   const openCreate = () => { setForm({ name: "", email: "" }); setModal({ mode: "create" }); };
   const openEdit = (item) => { setForm({ name: item.name, email: item.email }); setModal({ mode: "edit", item }); };
@@ -452,10 +555,10 @@ const Visitors = () => {
   };
   return (
     <Section title="Посетители" icon="user" onAdd={openCreate}>
-      <Table cols={[
+      {loading ? <Loader /> : <Table cols={[
         { key: "name", label: "Имя", width: 200 },
         { key: "email", label: "Email", width: "100%" },
-      ]} rows={data} onEdit={openEdit} onDelete={del} />
+      ]} rows={data} onEdit={openEdit} onDelete={del} />}
       {modal && (<Modal title={modal.mode === "create" ? "Новый посетитель" : "Редактировать посетителя"} onClose={() => setModal(null)}>
         <Field label="Имя"><input style={inputStyle} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="Иван Иванов" maxLength={20} /></Field>
         <Field label="Email"><input style={inputStyle} type="email" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} placeholder="ivan@example.com" maxLength={30} /></Field>
@@ -469,6 +572,7 @@ const Tickets = () => {
   const [data, setData] = useState([]);
   const [meta, setMeta] = useState(null);
   const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [modal, setModal] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [visitors, setVisitors] = useState([]);
@@ -476,8 +580,9 @@ const Tickets = () => {
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ sessionId: "", visitorId: "", seatNumber: "" });
   const load = useCallback(() => {
+    setLoading(true);
     const url = search ? `/tickets/search?visitorName=${encodeURIComponent(search)}&page=${page}&size=10` : `/tickets?page=${page}&size=10`;
-    api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error"));
+    api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error")).finally(() => setLoading(false));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.get("/sessions?size=100").then(r => setSessions(r.content)).catch(() => {}); api.get("/visitors").then(setVisitors).catch(() => {}); }, []);
@@ -504,23 +609,25 @@ const Tickets = () => {
       <SearchBar value={searchInput} onChange={setSearchInput} onSearch={handleSearch}
         onReset={search ? () => { setSearch(""); setSearchInput(""); setPage(0); } : null} placeholder="Поиск по посетителю..." />
       <CardDivider />
-      <Table cols={[
-        { key: "seatNumber", label: "Место", width: 100 },
-        { key: "session", label: "Фильм", width: 220, render: r => r.session
-          ? <span style={{ color: "#334155" }}>{r.session.movieTitle}</span>
-          : "—"
-        },
-        { key: "sessionTime", label: "Дата сеанса", width: 160, render: r => {
-          const dt = r.session?.startTime?.slice(0, 16).replace("T", " ") ?? "";
-          const [date, time] = dt.split(" ");
-          return dt ? <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
-            <div style={{ color: "#0f172a", fontWeight: 600 }}>{time}</div>
-            <div style={{ color: "#94a3b8", fontSize: 11 }}>{date}</div>
-          </div> : <span style={{ color: "#cbd5e1" }}>—</span>;
-        }},
-        { key: "visitorEmail", label: "Посетитель", width: "100%" },
-      ]} rows={data} onEdit={openEdit} onDelete={del} />
-      <Pagination meta={meta} onPage={setPage} />
+      {loading ? <Loader /> : <>
+        <Table cols={[
+          { key: "seatNumber", label: "Место", width: 100 },
+          { key: "session", label: "Фильм", width: 220, render: r => r.session
+            ? <span style={{ color: "#334155" }}>{r.session.movieTitle}</span>
+            : "—"
+          },
+          { key: "sessionTime", label: "Дата сеанса", width: 160, render: r => {
+            const dt = r.session?.startTime?.slice(0, 16).replace("T", " ") ?? "";
+            const [date, time] = dt.split(" ");
+            return dt ? <div style={{ fontVariantNumeric: "tabular-nums", lineHeight: 1.5 }}>
+              <div style={{ color: "#0f172a", fontWeight: 600 }}>{time}</div>
+              <div style={{ color: "#94a3b8", fontSize: 11 }}>{date}</div>
+            </div> : <span style={{ color: "#cbd5e1" }}>—</span>;
+          }},
+          { key: "visitorEmail", label: "Посетитель", width: "100%" },
+        ]} rows={data} onEdit={openEdit} onDelete={del} />
+        <Pagination meta={meta} onPage={setPage} />
+      </>}
       {modal && (<Modal title={modal.mode === "create" ? "Новый билет" : "Редактировать билет"} onClose={() => setModal(null)}>
         <Field label="Сеанс"><select style={inputStyle} value={form.sessionId} onChange={e => setForm(p => ({ ...p, sessionId: e.target.value }))}><option value="">— выбрать —</option>{sessions.map(s => <option key={s.id} value={s.id}>{s.movieTitle} | {s.startTime?.slice(0, 16).replace("T", " ")} | {s.hallName}</option>)}</select></Field>
         <Field label="Посетитель"><select style={inputStyle} value={form.visitorId} onChange={e => setForm(p => ({ ...p, visitorId: e.target.value }))}><option value="">— выбрать —</option>{visitors.map(v => <option key={v.id} value={v.id}>{v.name} ({v.email})</option>)}</select></Field>
@@ -532,16 +639,16 @@ const Tickets = () => {
 };
 
 const NAV = [
-  { id: "genres",   label: "Жанры",      icon: "tag" },
-  { id: "halls",    label: "Залы",        icon: "building" },
   { id: "movies",   label: "Фильмы",     icon: "film" },
   { id: "sessions", label: "Сеансы",     icon: "clock" },
-  { id: "visitors", label: "Посетители", icon: "user" },
   { id: "tickets",  label: "Билеты",     icon: "ticket" },
+  { id: "visitors", label: "Посетители", icon: "user" },
+  { id: "genres",   label: "Жанры",      icon: "tag" },
+  { id: "halls",    label: "Залы",        icon: "building" },
 ];
 
 export default function App() {
-  const [active, setActive] = useState("genres");
+  const [active, setActive] = useState("movies");
   const pages = { genres: <Genres />, halls: <Halls />, movies: <Movies />, sessions: <Sessions />, visitors: <Visitors />, tickets: <Tickets /> };
 
   return (
@@ -569,6 +676,7 @@ export default function App() {
         input[type="number"] { -moz-appearance: auto; }
         @keyframes toastIn { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:translateX(0); } }
         @keyframes modalIn { from { opacity:0; transform:translateY(10px) scale(0.98); } to { opacity:1; transform:translateY(0) scale(1); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
       <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
