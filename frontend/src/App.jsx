@@ -2,11 +2,15 @@ import { useState, useEffect, useCallback } from "react";
 
 const API = import.meta.env.VITE_API_URL || "";
 
+const parseError = async (r) => {
+  try { const j = await r.json(); throw new Error(j.message || r.statusText); } catch (e) { if (e.message !== r.statusText) throw e; throw new Error(r.statusText); }
+};
+
 const api = {
-  get: (url) => fetch(`${API}${url}`).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  post: (url, body) => fetch(`${API}${url}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  put: (url, body) => fetch(`${API}${url}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); }),
-  del: (url) => fetch(`${API}${url}`, { method: "DELETE" }).then(r => { if (!r.ok && r.status !== 204) throw new Error(r.statusText); }),
+  get: (url) => fetch(`${API}${url}`).then(async r => { if (!r.ok) await parseError(r); return r.json(); }),
+  post: (url, body) => fetch(`${API}${url}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(async r => { if (!r.ok) await parseError(r); return r.json(); }),
+  put: (url, body) => fetch(`${API}${url}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(async r => { if (!r.ok) await parseError(r); return r.json(); }),
+  del: (url) => fetch(`${API}${url}`, { method: "DELETE" }).then(async r => { if (!r.ok && r.status !== 204) await parseError(r); }),
 };
 
 const Icon = ({ name, size = 16 }) => {
@@ -487,13 +491,16 @@ const Sessions = () => {
       const body = { sessionId: Number(buyModal.id), visitorId: Number(buyForm.visitorId), seatNumber: Number(buyForm.seatNumber) };
       await api.post("/tickets/post", body);
       toast(`Билет на «${buyModal.movieTitle}» куплен`, "buy"); setBuyModal(null);
-    } catch { toast("Ошибка покупки билета", "error"); }
+    } catch (e) { toast(e.message || "Ошибка покупки билета", "error"); }
   };
   const del = async (item) => {
     if (!confirm("Удалить сеанс?")) return;
     try { await api.del(`/sessions/delete/${item.id}`); toast("Сеанс удалён", "delete"); load(); } catch { toast("Ошибка удаления сеанса", "error"); }
   };
   const handleSearch = () => { setSearch(searchInput); setPage(0); };
+  const currentHall = buyModal ? halls.find(h => h.name === buyModal.hallName) : null;
+  const maxSeats = currentHall?.seatAmount || 0;
+
   return (
     <Section title="Сеансы" icon="clock" onAdd={openCreate}>
       <SearchBar value={searchInput} onChange={setSearchInput} onSearch={handleSearch}
@@ -580,14 +587,37 @@ const Sessions = () => {
         <Field label="Зал"><select style={inputStyle} value={form.hallId} onChange={e => setForm(p => ({ ...p, hallId: e.target.value }))}><option value="">— выбрать —</option>{halls.map(h => <option key={h.id} value={h.id}>{h.name} ({h.price} р.)</option>)}</select></Field>
         <ModalActions onCancel={() => setModal(null)} onSave={submit} />
       </Modal>)}
-      {buyModal && (<Modal title={`Купить билет — ${buyModal.movieTitle}`} onClose={() => setBuyModal(null)}>
-        <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9, padding: "10px 14px", marginBottom: 18, fontSize: 13, color: "#15803d" }}>
-          {buyModal.startTime?.replace("T", " ").slice(0, 16)} · {buyModal.hallName} · {buyModal.price} р.
-        </div>
-        <Field label="Посетитель"><select style={inputStyle} value={buyForm.visitorId} onChange={e => setBuyForm(p => ({ ...p, visitorId: e.target.value }))}><option value="">— выбрать —</option>{visitors.map(v => <option key={v.id} value={v.id}>{v.name} ({v.email})</option>)}</select></Field>
-        <Field label="Номер места"><input style={inputStyle} type="number" value={buyForm.seatNumber} onChange={e => setBuyForm(p => ({ ...p, seatNumber: e.target.value }))} placeholder="1" /></Field>
-        <ModalActions onCancel={() => setBuyModal(null)} onSave={submitBuy} />
-      </Modal>)}
+        {buyModal && (<Modal title="Купить билет" onClose={() => setBuyModal(null)}>
+            <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 9, padding: "10px 14px", marginBottom: 18, fontSize: 13, color: "#15803d" }}>
+                <div style={{ fontWeight: 700, marginBottom: 4 }}>{buyModal.movieTitle}</div>
+                {buyModal.startTime?.replace("T", " · ").slice(0, 18)} · {buyModal.hallName} · {buyModal.price} р.
+            </div>
+            <Field label="Посетитель">
+                <select style={inputStyle} value={buyForm.visitorId} onChange={e => setBuyForm(p => ({ ...p, visitorId: e.target.value }))}>
+                    <option value="">— выбрать —</option>
+                    {visitors.map(v => <option key={v.id} value={v.id}>{v.name} ({v.email})</option>)}
+                </select>
+            </Field>
+
+            {}
+            <Field label={"Номер места"}>
+                <input
+                    style={inputStyle}
+                    type="number"
+                    value={buyForm.seatNumber}
+                    onChange={e => {
+                        const val = e.target.value;
+                        if (maxSeats && parseInt(val) > maxSeats) return;
+                        setBuyForm(p => ({ ...p, seatNumber: val }));
+                    }}
+                    placeholder={maxSeats ? `1–${maxSeats}` : "1"}
+                    min="1"
+                    max={maxSeats || undefined}
+                />
+            </Field>
+
+            <ModalActions onCancel={() => setBuyModal(null)} onSave={submitBuy} />
+        </Modal>)}
     </Section>
   );
 };
@@ -634,6 +664,7 @@ const Tickets = () => {
   const [modal, setModal] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [visitors, setVisitors] = useState([]);
+  const [halls, setHalls] = useState([]);
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [form, setForm] = useState({ sessionId: "", visitorId: "", seatNumber: "" });
@@ -643,25 +674,38 @@ const Tickets = () => {
     api.get(url).then(r => { setData(r.content); setMeta(r.metadata); }).catch(() => toast("Ошибка загрузки билетов", "error")).finally(() => setLoading(false));
   }, [page, search]);
   useEffect(() => { load(); }, [load]);
-  useEffect(() => { api.get("/sessions?size=100").then(r => setSessions(r.content)).catch(() => {}); api.get("/visitors").then(setVisitors).catch(() => {}); }, []);
+  useEffect(() => { api.get("/sessions?size=100").then(r => setSessions(r.content)).catch(() => {}); api.get("/visitors").then(setVisitors).catch(() => {}); api.get("/halls").then(setHalls).catch(() => {}); }, []);
   const openCreate = () => { setForm({ sessionId: "", visitorId: "", seatNumber: "" }); setModal({ mode: "create" }); };
-  const openEdit = (item) => {
-    const session = sessions.find(s => s.id === item.session?.id);
-    const visitor = visitors.find(v => v.email === item.visitorEmail);
-    setForm({ sessionId: session?.id ?? "", visitorId: visitor?.id ?? "", seatNumber: item.seatNumber }); setModal({ mode: "edit", item });
-  };
-  const submit = async () => {
+    const openEdit = async (item) => {
+        const session = sessions.find(s => s.id === item.session?.id);
+        let visitorList = visitors;
+        if (visitorList.length === 0) {
+            try { visitorList = await api.get("/visitors"); setVisitors(visitorList); } catch { visitorList = []; }
+        }
+        const emailFromStr = item.visitorEmail?.match(/\(([^)]+)\)/)?.[1] ?? item.visitorEmail;
+        const visitor = visitorList.find(v => v.email === emailFromStr);
+        setForm({
+            sessionId: String(session?.id ?? ""),
+            visitorId: String(visitor?.id ?? ""),
+            seatNumber: item.seatNumber
+        });
+        setModal({ mode: "edit", item });
+    };
+    const submit = async () => {
     try {
       const body = { sessionId: Number(form.sessionId), visitorId: Number(form.visitorId), seatNumber: Number(form.seatNumber) };
       if (modal.mode === "create") await api.post("/tickets/post", body); else await api.put(`/tickets/update/${modal.item.id}`, body);
       toast(modal.mode === "create" ? "Билет добавлен" : "Билет обновлён"); setModal(null); load();
-    } catch { toast("Ошибка сохранения билета", "error"); }
+    } catch (e) { toast(e.message || "Ошибка сохранения билета", "error"); }
   };
   const del = async (item) => {
     if (!confirm("Удалить билет?")) return;
-    try { await api.del(`/tickets/delete/${item.id}`); toast("Билет удалён", "delete"); load(); } catch { toast("Ошибка удаления билета", "error"); }
+    try { await api.del(`/tickets/delete/${item.id}`); toast("Билет удалён", "delete"); load(); } catch (e) { toast(e.message || "Ошибка удаления билета", "error"); }
   };
   const handleSearch = () => { setSearch(searchInput); setPage(0); };
+  const selectedSession = sessions.find(s => String(s.id) === String(form.sessionId));
+  const selectedHall = selectedSession ? halls.find(h => h.name === selectedSession.hallName) : null;
+  const maxSeats = selectedHall?.seatAmount || 0;
   return (
     <Section title="Билеты" icon="ticket" onAdd={openCreate}>
       <SearchBar value={searchInput} onChange={setSearchInput} onSearch={handleSearch}
@@ -686,12 +730,46 @@ const Tickets = () => {
         ]} rows={data} onEdit={openEdit} onDelete={del} />
         <Pagination meta={meta} onPage={setPage} />
       </>}
-      {modal && (<Modal title={modal.mode === "create" ? "Новый билет" : "Редактировать билет"} onClose={() => setModal(null)}>
-        <Field label="Сеанс"><select style={inputStyle} value={form.sessionId} onChange={e => setForm(p => ({ ...p, sessionId: e.target.value }))}><option value="">— выбрать —</option>{sessions.map(s => <option key={s.id} value={s.id}>{s.movieTitle} | {s.startTime?.slice(0, 16).replace("T", " ")} | {s.hallName}</option>)}</select></Field>
-        <Field label="Посетитель"><select style={inputStyle} value={form.visitorId} onChange={e => setForm(p => ({ ...p, visitorId: e.target.value }))}><option value="">— выбрать —</option>{visitors.map(v => <option key={v.id} value={v.id}>{v.name} ({v.email})</option>)}</select></Field>
-        <Field label="Номер места"><input style={inputStyle} type="number" value={form.seatNumber} onChange={e => setForm(p => ({ ...p, seatNumber: e.target.value }))} placeholder="1" /></Field>
-        <ModalActions onCancel={() => setModal(null)} onSave={submit} />
-      </Modal>)}
+        {modal && (
+            <Modal title={modal.mode === "create" ? "Новый билет" : "Редактировать билет"} onClose={() => setModal(null)}>
+                <Field label="Сеанс">
+                    <select style={inputStyle} value={form.sessionId} onChange={e => setForm(p => ({ ...p, sessionId: e.target.value }))}>
+                        <option value="">— выбрать —</option>
+                        {sessions.map(s => (
+                            <option key={s.id} value={String(s.id)}>
+                                {s.movieTitle} | {s.startTime?.slice(0, 16).replace("T", " ")} | {s.hallName}
+                            </option>
+                        ))}
+                    </select>
+                </Field>
+                <Field label="Посетитель">
+                    <select style={inputStyle} value={form.visitorId} onChange={e => setForm(p => ({ ...p, visitorId: e.target.value }))}>
+                        <option value="">— выбрать —</option>
+                        {visitors.map(v => (
+                            <option key={v.id} value={String(v.id)}>
+                                {v.name} ({v.email})
+                            </option>
+                        ))}
+                    </select>
+                </Field>
+                <Field label={"Номер места"}>
+                    <input
+                        style={inputStyle}
+                        type="number"
+                        value={form.seatNumber}
+                        onChange={e => {
+                            const val = e.target.value;
+                            if (maxSeats && parseInt(val) > maxSeats) return;
+                            setForm(p => ({ ...p, seatNumber: val }));
+                        }}
+                        placeholder={maxSeats ? `1–${maxSeats}` : "1"}
+                        min="1"
+                        max={maxSeats || undefined}
+                    />
+                </Field>
+                <ModalActions onCancel={() => setModal(null)} onSave={submit} />
+            </Modal>
+        )}
     </Section>
   );
 };
@@ -739,7 +817,7 @@ export default function App() {
 
       <div style={{ display: "flex", minHeight: "100vh", width: "100%" }}>
 
-        {/* Sidebar */}
+        {}
         <aside style={{
           width: 260, flexShrink: 0,
           background: "#ffffff",
@@ -748,7 +826,7 @@ export default function App() {
           position: "sticky", top: 0, height: "100vh",
           boxShadow: "2px 0 12px rgba(0,0,0,0.04)",
         }}>
-          {/* Logo */}
+          {}
           <div style={{ padding: "26px 20px 22px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
               <div style={{ background: "linear-gradient(135deg,#1d4ed8,#3b82f6)", borderRadius: 11, padding: "8px 9px", display: "flex", boxShadow: "0 4px 14px rgba(59,130,246,0.35), 0 1px 3px rgba(0,0,0,0.1)", color: "#ffffff" }}>
@@ -760,7 +838,7 @@ export default function App() {
 
           <div style={{ height: 1, background: "#f1f5f9", margin: "0 14px 10px" }} />
 
-          {/* Nav */}
+          {}
           <nav style={{ flex: 1, padding: "4px 10px" }}>
             {NAV.map(n => {
               const on = active === n.id;
@@ -790,7 +868,7 @@ export default function App() {
           <div style={{ padding: "14px 20px", borderTop: "1px solid #f1f5f9" }} />
         </aside>
 
-        {/* Main */}
+        {}
         <main style={{
           flex: 1, minWidth: 0, width: 0, padding: "32px 40px",
           background: "#f1f5f9",

@@ -20,6 +20,7 @@ import pavel.lab.cinema.repository.TicketRepository;
 import pavel.lab.cinema.repository.VisitorRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -43,7 +44,14 @@ public class TicketService {
         Session session = sessionRepository.findById(dto.getSessionId())
                 .orElseThrow(() -> new EntityNotFoundException(SESSION_PREFIX + dto.getSessionId() + NOT_FOUND_MSG));
         if (dto.getSeatNumber() > session.getHall().getSeatAmount()) {
-            throw new IllegalArgumentException(": в зале " + session.getHall().getName() + " недостаточно мест");
+            throw new IllegalArgumentException(": в зале " + session.getHall().getName()
+                    + " недостаточно мест (макс. " + session.getHall().getSeatAmount() + ")");
+        }
+        List<Integer> bookedSeats = session.getTickets().stream()
+                .map(Ticket::getSeatNumber)
+                .toList();
+        if (bookedSeats.contains(dto.getSeatNumber())) {
+            throw new IllegalArgumentException(": место под номером " + dto.getSeatNumber() + " занято");
         }
         Ticket ticket = ticketMapper.toEntity(dto);
         ticket.setSession(session);
