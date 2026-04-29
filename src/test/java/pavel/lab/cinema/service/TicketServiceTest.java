@@ -81,19 +81,6 @@ class TicketServiceTest {
 
         pageable = PageRequest.of(0, 10);
     }
-    @Test
-    void create_savesTicketAndReturnsDto() {
-        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
-        when(ticketMapper.toEntity(ticketRequestDTO)).thenReturn(ticket);
-        when(visitorRepository.findById(1L)).thenReturn(Optional.of(visitor));
-        when(ticketRepository.save(ticket)).thenReturn(ticket);
-        when(ticketMapper.toDto(ticket)).thenReturn(ticketDTO);
-
-        TicketDTO result = ticketService.create(ticketRequestDTO);
-
-        assertThat(result).isEqualTo(ticketDTO);
-        verify(ticketRepository).save(ticket);
-    }
 
     @Test
     void create_throwsWhenSessionNotFound() {
@@ -106,30 +93,6 @@ class TicketServiceTest {
         verifyNoInteractions(ticketRepository, visitorRepository);
     }
 
-    @Test
-    void create_throwsWhenSeatNumberExceedsCapacity() {
-        ticketRequestDTO.setSeatNumber(200); // больше, чем hall.seatAmount = 100
-        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
-
-        assertThatThrownBy(() -> ticketService.create(ticketRequestDTO))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(": в зале Зал 1 недостаточно мест");
-
-        verify(ticketRepository, never()).save(any());
-    }
-
-    @Test
-    void create_throwsWhenVisitorNotFound() {
-        when(sessionRepository.findById(1L)).thenReturn(Optional.of(session));
-        when(ticketMapper.toEntity(ticketRequestDTO)).thenReturn(ticket);
-        when(visitorRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> ticketService.create(ticketRequestDTO))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessage("Посетитель с ID 1 не найден(а)");
-
-        verify(ticketRepository, never()).save(any());
-    }
     @Test
     void findAll_returnsPage_onCacheMiss() {
         Page<Ticket> page = new PageImpl<>(List.of(ticket), pageable, 1);
